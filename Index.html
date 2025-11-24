@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chicken Time!!</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: #fff7e6;
+      color: #333;
+      padding: 50px;
+    }
+    h1 {
+      font-size: 3rem;
+    }
+    #countdown {
+      font-size: 2.5rem;
+      margin-top: 20px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Countdown to Chicken Time!! 🍗</h1>
+  <div id="countdown">Loading...</div>
+
+  <script>
+    // Set target date/time in CST (America/Chicago)
+    const chickenTime = new Date("2025-11-29T19:00:00-06:00").getTime();
+
+    function updateTimer() {
+      const now = new Date().getTime();
+      const distance = chickenTime - now;
+
+      if (distance <= 0) {
+        document.getElementById("countdown").innerHTML = "IT'S CHICKEN TIME!! 🍗🔥";
+        return;
+      }
+
+      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+      document.getElementById("countdown").innerHTML =
+        `${days}d ${hours}h ${minutes}m ${seconds}s`;
+    }
+
+    updateTimer();
+    setInterval(updateTimer, 1000);
+  </script>
+
+</body>
+</html>
