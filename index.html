@@ -31,6 +31,8 @@
       position: relative;
       z-index: 1;
       padding: 28px 20px;
+      max-width: 980px;
+      margin: 0 auto;
     }
 
     h1 {
@@ -119,110 +121,84 @@
       100% { opacity: 0; transform: translate(-50%,-50%) scale(1); }
     }
 
+    /* Music controls UI */
+    #musicControls {
+      position: fixed;
+      bottom: 18px;
+      left: 18px;
+      background: rgba(0,0,0,0.6);
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.06);
+      z-index: 99999;
+      color: #fff;
+      font-size: 14px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    #musicControls button {
+      background: rgba(255,255,255,0.06);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.08);
+      padding: 6px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    #volumeSlider {
+      width: 140px;
+    }
+
+    .sr-only {
+      position: absolute !important;
+      height: 1px; width: 1px;
+      overflow: hidden;
+      clip: rect(1px,1px,1px,1px);
+      white-space: nowrap;
+    }
+
     @media (max-width: 420px) {
       .chicken-gif { width: 160px; }
       .click-chick { width: 64px; }
+      #musicControls { left: 12px; bottom: 12px; padding: 8px; gap: 8px; }
+      #volumeSlider { width: 100px; }
     }
   </style>
 </head>
 
 <body>
-<div class="overlay"></div>
+  <div class="overlay"></div>
 
-<div class="content">
-  <h1>🐔 Countdown to Chicken Time</h1>
+  <!-- Hidden (system) audio element — controlled via UI below -->
+  <audio id="musicPlayer" autoplay loop style="display:none;"></audio>
 
-  <div id="countdown">Loading…</div>
+  <div class="content">
+    <h1>🐔 Countdown to Chicken Time</h1>
 
-  <!-- fact above the GIF -->
-  <div id="fact">Loading chicken fact…</div>
+    <div id="countdown">Loading…</div>
 
-  <!-- Primary dancing-chicken GIF (Tenor), script will try alternates if it fails -->
-  <img id="chickenGif"
-       class="chicken-gif"
-       src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExZHY4dDlub24yd3RpZndvc2pmdGtmcHVseDJ6cHo4bXNhN21yOHIzOCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/bJ91q0UsnGbacudx2g/giphy.gif"
-       alt="Dancing chicken">
-</div>
+    <!-- fact above the GIF -->
+    <div id="fact">Loading chicken fact…</div>
+
+    <!-- Chicken GIF placed under the countdown (as requested) -->
+    <img id="chickenGif"
+         class="chicken-gif"
+         src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExZHY4dDlub24yd3RpZndvc2pmdGtmcHVseDJ6cHo4bXNhN21yOHIzOCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/bJ91q0UsnGbacudx2g/giphy.gif"
+         alt="Dancing chicken">
+  </div>
+
+  <!-- Music control UI -->
+  <div id="musicControls" aria-live="polite">
+    <button id="muteBtn" aria-pressed="false">🔊 Mute</button>
+    <label for="volumeSlider" class="sr-only">Volume</label>
+    <input id="volumeSlider" type="range" min="0" max="1" step="0.01" value="1" />
+  </div>
 
 <script>
-  // Enable audio playback after first user click (browser requirement)
-let audioUnlocked = false;
-
-document.addEventListener("click", () => {
-  if (!audioUnlocked) {
-    const player = document.getElementById("musicPlayer");
-    player.play().catch(()=>{});
-    audioUnlocked = true;
-  }
-});
-  
-  /* -------------------------
-   Dynamic Music Based on Time Remaining
-------------------------- */
-
-// Public-domain classical music (MP3s from Wikimedia)
-const MUSIC_TRACKS = {
-  intense: "https://upload.wikimedia.org/wikipedia/commons/0/04/Beethoven_-_Symphony_No._5_%28Allegro_con_brio%29.ogg",
-  medium:  "https://upload.wikimedia.org/wikipedia/commons/0/06/Mozart_-_Eine_kleine_Nachtmusik_%28Allegro%29.ogg",
-  serene:  "https://upload.wikimedia.org/wikipedia/commons/0/01/Claude_Debussy_-_Clair_de_Lune.ogg"
-};
-
-const musicPlayer = document.getElementById("musicPlayer");
-let currentMusic = null;
-
-function updateMusic(diffMs) {
-  const hours = diffMs / 3600000;
-
-  let newTrack;
-  if (hours > 48) {
-    newTrack = MUSIC_TRACKS.intense; // far from event
-  } else if (hours > 12) {
-    newTrack = MUSIC_TRACKS.medium;  // getting closer
-  } else {
-    newTrack = MUSIC_TRACKS.serene;  // final hours
-  }
-
-  if (newTrack !== currentMusic) {
-    currentMusic = newTrack;
-    musicPlayer.src = newTrack;
-    musicPlayer.play().catch(() => {});
-  }
-}
-
-// Tie into the countdown timer updates
-function updateCountdown() {
-  const target = new Date("2025-11-29T19:00:00-06:00");
-  const now = new Date();
-  const diff = target - now;
-
-  updateMusic(diff);
-
-  if (diff <= 0) {
-    countdownEl.textContent = "🎉 It's Chicken Time!! 🎉";
-
-    // Optional: fade music out
-    musicPlayer.volume = 0.15;
-    const fade = setInterval(() => {
-      if (musicPlayer.volume > 0.01) {
-        musicPlayer.volume -= 0.01;
-      } else {
-        musicPlayer.pause();
-        clearInterval(fade);
-      }
-    }, 200);
-
-    return;
-  }
-
-  const days = Math.floor(diff / 86400000);
-  const hours = Math.floor((diff / 3600000) % 24);
-  const minutes = Math.floor((diff / 60000) % 60);
-  const seconds = Math.floor((diff / 1000) % 60);
-
-  countdownEl.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
-}
 /* -------------------------
-   Chicken facts (unchanged)
+   Chicken facts
 ------------------------- */
 const facts = [
   "Chickens can remember over 100 individual faces!",
@@ -230,13 +206,11 @@ const facts = [
   "Chickens have excellent color vision.",
   "A hen turns her eggs about 50 times a day.",
   "Chickens dream during REM sleep!",
-
   "Roosters have built-in alarm clocks and crow based on sunlight.",
   "Chickens can run up to 9 mph.",
   "Some hens sing a little song after laying an egg.",
   "Chickens taste salt but not sweetness.",
   "A group of chickens is called a flock.",
-
   "Chickens have over 30 unique vocalizations.",
   "Chicks imprint on the first moving thing they see.",
   "Chickens can sense time intervals.",
@@ -251,20 +225,103 @@ function updateFact() {
   factEl.textContent = "📘 " + facts[factIndex];
   factIndex = (factIndex + 1) % facts.length;
 }
-
 updateFact();
 setInterval(updateFact, 7000);
 
 /* -------------------------
-   Countdown
+   Countdown + Dynamic Music
 ------------------------- */
+
+// Target time: Nov 29, 2025 19:00:00 America/Chicago (-06:00)
+const TARGET_ISO = "2025-11-29T19:00:00-06:00";
+
+// MP3 tracks (public domain / reliably accessible)
+const MUSIC_TRACKS = {
+  intense: "https://files.freemusicarchive.org/storage-freemusicarchive-org/music/no_curator/Ludwig_van_Beethoven/Symphony_No_5/Beethoven_-_Symphony_No_5_I_Allegro_con_brio.mp3",
+  medium:  "https://files.freemusicarchive.org/storage-freemusicarchive-org/music/no_curator/Wolfgang_Amadeus_Mozart/Eine_kleine_Nachtmusik/Mozart_-_Eine_kleine_Nachtmusik_Allegro.mp3",
+  serene:  "https://files.freemusicarchive.org/storage-freemusicarchive-org/music/no_curator/Claude_Debussy/Clair_de_Lune/Claude_Debussy_-_Clair_de_Lune.mp3"
+};
+
+const musicPlayer = document.getElementById("musicPlayer");
+let currentTrack = null;
+
+// UI controls
+const muteBtn = document.getElementById("muteBtn");
+const volumeSlider = document.getElementById("volumeSlider");
+
+// initialize volume and mute state from slider
+musicPlayer.volume = parseFloat(volumeSlider.value || "1");
+musicPlayer.muted = false;
+
+// Autoplay restrictions: unlock audio on first user interaction
+let audioUnlocked = false;
+function unlockAudioOnce() {
+  if (audioUnlocked) return;
+  audioUnlocked = true;
+  // Attempt to play the current source if set (may fail silently otherwise)
+  musicPlayer.play().catch(err => {
+    // Browsers often throw, but once user interacts playback should work
+    console.log("Audio play attempt after unlock:", err && err.message ? err.message : err);
+  });
+}
+document.addEventListener("click", unlockAudioOnce, { once: true });
+document.addEventListener("keydown", unlockAudioOnce, { once: true });
+document.addEventListener("touchstart", unlockAudioOnce, { once: true });
+
+// choose track based on time remaining (hours)
+function chooseTrackByRemaining(diffMs) {
+  const hours = diffMs / 3600000;
+  if (hours > 48) return MUSIC_TRACKS.intense;
+  if (hours > 12) return MUSIC_TRACKS.medium;
+  return MUSIC_TRACKS.serene;
+}
+
+function updateMusic(diffMs) {
+  const chosen = chooseTrackByRemaining(diffMs);
+  if (chosen !== currentTrack) {
+    currentTrack = chosen;
+    // preserve current volume and muted settings, just swap src
+    const wasMuted = musicPlayer.muted;
+    const prevVolume = musicPlayer.volume;
+
+    musicPlayer.src = chosen;
+    // reapply volume and mute
+    musicPlayer.volume = prevVolume;
+    musicPlayer.muted = wasMuted;
+
+    // attempt to play only if the user has unlocked audio
+    if (audioUnlocked) {
+      musicPlayer.play().catch(e => {
+        // don't spam console on expected autoplay rejections
+        console.log("Play after track change rejected (expected if no unlock):", e && e.message ? e.message : e);
+      });
+    }
+  }
+}
+
+const countdownEl = document.getElementById("countdown");
+
 function updateCountdown() {
-  const target = new Date("2025-11-29T19:00:00-06:00");
+  const target = new Date(TARGET_ISO);
   const now = new Date();
   const diff = target - now;
 
+  updateMusic(diff);
+
   if (diff <= 0) {
     countdownEl.textContent = "🎉 It's Chicken Time!! 🎉";
+    // fade out music when event fires
+    try {
+      let vol = musicPlayer.volume;
+      const fade = setInterval(() => {
+        vol = Math.max(0, vol - 0.02);
+        musicPlayer.volume = vol;
+        if (vol <= 0.01) {
+          musicPlayer.pause();
+          clearInterval(fade);
+        }
+      }, 150);
+    } catch (e) {}
     return;
   }
 
@@ -275,16 +332,20 @@ function updateCountdown() {
 
   countdownEl.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
 }
-const countdownEl = document.getElementById("countdown");
+
+// start countdown and music selection loop
 updateCountdown();
 setInterval(updateCountdown, 1000);
 
 /* -------------------------
-   Click => Spawn chick (unchanged placeholder)
+   Click => Spawn chick (click-chick)
 ------------------------- */
 const CLICK_CHICK_URL = "CLICK_CHICK_URL_HERE";
 
 document.addEventListener("click", (ev) => {
+  // leave original unlock handler in place — this is purely visual spawn
+  if (!ev.clientX && !ev.clientY) return;
+
   const img = new Image();
   img.className = "click-chick";
   img.style.left = ev.clientX + "px";
@@ -292,6 +353,7 @@ document.addEventListener("click", (ev) => {
   img.src = CLICK_CHICK_URL;
 
   img.onerror = () => {
+    // if image fails, show emoji fallback
     img.remove();
     const fallback = document.createElement("div");
     fallback.className = "click-chick";
@@ -310,16 +372,14 @@ document.addEventListener("click", (ev) => {
 });
 
 /* -------------------------
-   Resilient chicken GIF logic (tries 2 fallbacks, then emoji)
+   Resilient chicken GIF (tries alternates then emoji)
 ------------------------- */
 (function makeGifResilient() {
   const img = document.getElementById("chickenGif");
   if (!img) return;
 
   const alternates = [
-    // first fallback: Giphy candidate
     "https://media.giphy.com/media/26ufdipQqU2lhNA4g/giphy.gif",
-    // second fallback: another Tenor-style direct image
     "https://media.tenor.com/images/9b2f3f2a0f4d5c7b6c1a2dcb8b1c9e00/tenor.gif"
   ];
 
@@ -341,7 +401,7 @@ document.addEventListener("click", (ev) => {
 
   img.addEventListener("error", onErr);
 })();
- 
+
 /* -------------------------
    Static bear + waving paw
 ------------------------- */
@@ -372,6 +432,55 @@ setTimeout(() => {
 window.addEventListener("beforeunload", () => {
   if (window._bearInterval) clearInterval(window._bearInterval);
 });
+
+/* -------------------------
+   Music Controls: mute & volume slider
+------------------------- */
+muteBtn.addEventListener("click", () => {
+  musicPlayer.muted = !musicPlayer.muted;
+  muteBtn.textContent = musicPlayer.muted ? "🔈 Unmute" : "🔊 Mute";
+  muteBtn.setAttribute("aria-pressed", String(musicPlayer.muted));
+});
+
+// volume slider
+volumeSlider.addEventListener("input", (e) => {
+  const v = parseFloat(e.target.value);
+  musicPlayer.volume = v;
+  // if user moves volume to 0, visually show as muted (but don't set true 'muted' flag)
+  if (v <= 0.001) {
+    muteBtn.textContent = "🔈 Unmute";
+    muteBtn.setAttribute("aria-pressed", "true");
+  } else {
+    if (!musicPlayer.muted) {
+      muteBtn.textContent = "🔊 Mute";
+      muteBtn.setAttribute("aria-pressed", "false");
+    }
+  }
+});
+
+// ensure slider reflects player volume if changed programmatically
+musicPlayer.addEventListener("volumechange", () => {
+  const vol = Math.round((musicPlayer.volume ?? 1) * 100) / 100;
+  if (parseFloat(volumeSlider.value) !== vol) {
+    volumeSlider.value = String(vol);
+  }
+
+  // keep muteBtn text consistent when true muted flag toggled
+  muteBtn.textContent = musicPlayer.muted ? "🔈 Unmute" : "🔊 Mute";
+  muteBtn.setAttribute("aria-pressed", String(musicPlayer.muted));
+});
+
+/* -------------------------
+   Initialize current track immediately (so src exists)
+------------------------- */
+(function initTrackOnLoad() {
+  const target = new Date(TARGET_ISO);
+  const diff = target - new Date();
+  currentTrack = chooseTrackByRemaining(diff);
+  musicPlayer.src = currentTrack;
+  // if user already interacted (rare), try to play
+  if (audioUnlocked) musicPlayer.play().catch(()=>{});
+})();
 </script>
 </body>
 </html>
