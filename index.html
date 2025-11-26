@@ -13,28 +13,25 @@
       text-align: center;
       overflow: hidden;
 
-      /* <-- REPLACE this URL with the RAW GitHub URL for your hosted background image */
-      background-image: url(https://raw.githubusercontent.com/vacidis-jpg/ChickenTime3/main/chicks-bg.png);
+      /* Background image — replace if needed */
+      background-image: url('https://raw.githubusercontent.com/vacidis-jpg/ChickenTime3/main/chicks-bg.png');
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
     }
 
-    /* subtle dim overlay to keep text readable */
     .overlay {
       position: fixed;
       inset: 0;
       background: rgba(0,0,0,0.35);
-      z-index: 0;
       pointer-events: none;
+      z-index: 0;
     }
 
     .content {
       position: relative;
       z-index: 1;
       padding: 28px 20px;
-      max-width: 980px;
-      margin: 0 auto;
     }
 
     h1 {
@@ -65,178 +62,168 @@
       filter: drop-shadow(0 6px 12px rgba(0,0,0,0.6));
     }
 
-    /* Click-spawned chick */
+    .bear-container {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      z-index: 9999;
+      animation: fadeBear 2s ease-in-out forwards;
+    }
+
+    @keyframes fadeBear {
+      0% { opacity: 0; transform: translate(-50%,-50%) scale(0.7); }
+      15% { opacity: 1; transform: translate(-50%,-50%) scale(1); }
+      85% { opacity: 1; }
+      100% { opacity: 0; transform: translate(-50%,-50%) scale(0.7); }
+    }
+
+    .bear-head {
+      font-size: 4rem;
+      text-shadow: 3px 3px 12px rgba(0,0,0,.7);
+    }
+
+    .bear-paw {
+      position: absolute;
+      right: -20px;
+      top: 5px;
+      font-size: 2.4rem;
+      transform-origin: bottom center;
+      animation: wavePaw 0.5s ease-in-out infinite alternate;
+    }
+
+    @keyframes wavePaw {
+      0% { transform: rotate(20deg); }
+      100% { transform: rotate(-20deg); }
+    }
+
     .click-chick {
       position: absolute;
       width: 90px;
       pointer-events: none;
       transform: translate(-50%,-50%);
+      animation: popChick 1s forwards;
       z-index: 9999;
-      animation: popChick 1s cubic-bezier(.2,.9,.3,1) forwards;
-      will-change: transform, opacity;
     }
+
     @keyframes popChick {
       0% { opacity: 0; transform: translate(-50%,-50%) scale(0.2); }
-      60% { opacity: 1; transform: translate(-50%,-50%) scale(1.05); }
-      100%{ opacity: 0; transform: translate(-50%,-50%) scale(1); }
-    }
-
-    /* Waving bear with obvious wave rotation */
-    .bear {
-      position: absolute;
-      z-index: 9990;
-      font-size: 4rem;
-      pointer-events: none;
-      transform: translate(-50%,-50%);
-      animation: waveBear 2s ease-in-out forwards;
-      filter: drop-shadow(0 6px 12px rgba(0,0,0,0.6));
-    }
-
-    @keyframes waveBear {
-      0%   { opacity: 0; transform: translate(-50%,-50%) scale(0.3) rotate(0deg); }
-      10%  { opacity: 1; transform: translate(-50%,-50%) scale(1.05) rotate(18deg); }
-      25%  { transform: translate(-50%,-50%) rotate(-18deg); }
-      40%  { transform: translate(-50%,-50%) rotate(20deg); }
-      55%  { transform: translate(-50%,-50%) rotate(-20deg); }
-      70%  { transform: translate(-50%,-50%) rotate(15deg); }
-      85%  { transform: translate(-50%,-50%) rotate(-15deg); }
-      100% { opacity: 0; transform: translate(-50%,-50%) scale(0.6) rotate(0deg); }
-    }
-
-    /* responsive tweaks */
-    @media (max-width: 520px) {
-      h1 { font-size: 1.9rem; }
-      #countdown { font-size: 1.4rem; }
-      .chicken-gif { width: 170px; }
-      .bear { font-size: 3rem; }
-      .click-chick { width: 60px; }
+      60% { opacity: 1; transform: translate(-50%,-50%) scale(1.1); }
+      100% { opacity: 0; transform: translate(-50%,-50%) scale(1); }
     }
   </style>
 </head>
 
 <body>
-  <div class="overlay" aria-hidden="true"></div>
+<div class="overlay"></div>
 
-  <div class="content" role="main">
-    <h1>🐔 Countdown to Chicken Time</h1>
-    <div id="countdown">Loading…</div>
-    <div id="fact">Loading chicken fact…</div>
+<div class="content">
+  <h1>🐔 Countdown to Chicken Time</h1>
+  <div id="countdown">Loading…</div>
+  <div id="fact">Loading chicken fact…</div>
 
-    <!-- dancing chicken GIF (hosted externally; you can replace) -->
-    <img class="chicken-gif"
-         src="https://media.tenor.com/7vTfp14RJC4AAAAi/chicken-dance.gif"
-         alt="Dancing chicken">
-  </div>
+  <img class="chicken-gif"
+       src="https://media.tenor.com/7vTfp14RJC4AAAAi/chicken-dance.gif"
+       alt="Dancing chicken">
+</div>
 
-  <script>
-    /* ---------------------------
-       Chicken facts (rotating/single)
-    --------------------------- */
-    const facts = [
-      "Chickens can remember over 100 individual faces!",
-      "Baby chicks communicate with their mother before hatching.",
-      "Chickens have excellent color vision.",
-      "A hen turns her eggs about 50 times a day.",
-      "Chickens dream during REM sleep!"
-    ];
-    document.getElementById("fact").textContent =
-      "📘 " + facts[Math.floor(Math.random() * facts.length)];
+<script>
+/* -------------------------
+   Chicken fact
+------------------------- */
+const facts = [
+  "Chickens can remember over 100 individual faces!",
+  "Baby chicks communicate with their mother before hatching.",
+  "Chickens have excellent color vision.",
+  "A hen turns her eggs about 50 times a day.",
+  "Chickens dream during REM sleep!"
+];
+document.getElementById("fact").textContent =
+  "📘 " + facts[Math.floor(Math.random() * facts.length)];
 
-    /* ---------------------------
-       Countdown timer (CST target)
-    --------------------------- */
-    const countdownEl = document.getElementById("countdown");
-    function updateCountdown() {
-      // target is Nov 29, 2025 19:00 CST (UTC-6)
-      const target = new Date("2025-11-29T19:00:00-06:00");
-      const now = new Date();
-      const diff = target - now;
+/* -------------------------
+   Countdown
+------------------------- */
+function updateCountdown() {
+  const target = new Date("2025-11-29T19:00:00-06:00");
+  const now = new Date();
+  const diff = target - now;
 
-      if (diff <= 0) {
-        countdownEl.textContent = "🎉 It's Chicken Time!! 🎉";
-        return;
-      }
+  if (diff <= 0) {
+    countdownEl.textContent = "🎉 It's Chicken Time!! 🎉";
+    return;
+  }
 
-      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-      const minutes = Math.floor((diff / (1000 * 60)) % 60);
-      const seconds = Math.floor((diff / 1000) % 60);
+  const days = Math.floor(diff / 86400000);
+  const hours = Math.floor((diff / 3600000) % 24);
+  const minutes = Math.floor((diff / 60000) % 60);
+  const seconds = Math.floor((diff / 1000) % 60);
 
-      countdownEl.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
-    }
-    updateCountdown();
-    setInterval(updateCountdown, 1000);
+  countdownEl.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+}
+const countdownEl = document.getElementById("countdown");
+updateCountdown();
+setInterval(updateCountdown, 1000);
 
-    /* ---------------------------
-       Click => spawn chick image (hosted in your repo)
-       Replace CLICK_CHICK_URL below with your RAW github URL:
-       e.g. https://raw.githubusercontent.com/YOUR-USER/YOUR-REPO/main/assets/click-chick.png
-    --------------------------- */
-    const CLICK_CHICK_URL = "CLICK_CHICK_URL_HERE"; // <-- REPLACE with your raw URL
+/* -------------------------
+   Click => spawn chick image
+------------------------- */
+const CLICK_CHICK_URL = "CLICK_CHICK_URL_HERE"; // replace when ready
 
-    document.addEventListener("click", (ev) => {
-      const x = ev.clientX;
-      const y = ev.clientY;
+document.addEventListener("click", (ev) => {
+  const img = new Image();
+  img.className = "click-chick";
+  img.style.left = ev.clientX + "px";
+  img.style.top = ev.clientY + "px";
+  img.src = CLICK_CHICK_URL;
 
-      const img = new Image();
-      img.className = "click-chick";
-      img.style.left = x + "px";
-      img.style.top  = y + "px";
-      img.alt = "baby chick";
+  img.onerror = () => {
+    img.remove();
+    const fallback = document.createElement("div");
+    fallback.className = "click-chick";
+    fallback.style.left = ev.clientX + "px";
+    fallback.style.top  = ev.clientY + "px";
+    fallback.textContent = "🐤";
+    fallback.style.fontSize = "2.4rem";
+    document.body.appendChild(fallback);
+    setTimeout(() => fallback.remove(), 1000);
+  };
 
-      // success => append; failure => fallback to emoji
-      img.onload = () => {
-        document.body.appendChild(img);
-        setTimeout(() => img.remove(), 1000);
-      };
-      img.onerror = () => {
-        const fallback = document.createElement("div");
-        fallback.className = "click-chick";
-        fallback.style.left = x + "px";
-        fallback.style.top  = y + "px";
-        fallback.textContent = "🐤";
-        fallback.style.fontSize = "2.4rem";
-        document.body.appendChild(fallback);
-        setTimeout(() => fallback.remove(), 1000);
-      };
+  img.onload = () => {
+    document.body.appendChild(img);
+    setTimeout(() => img.remove(), 1000);
+  };
+});
 
-      // start loading the hosted image (replace placeholder before publishing)
-      img.src = CLICK_CHICK_URL;
-    });
+/* -------------------------
+   Static bear head + waving paw
+------------------------- */
+function spawnBear() {
+  const bear = document.createElement("div");
+  bear.className = "bear-container";
 
-    /* ---------------------------
-       Spawn waving bears every 5s
-    --------------------------- */
-    function spawnBear() {
-      const bear = document.createElement("div");
-      bear.className = "bear";
-      bear.textContent = "🐻";
+  bear.innerHTML = `
+    <div class="bear-head">🐻</div>
+    <div class="bear-paw">👋</div>
+  `;
 
-      const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
-      const vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
 
-      const marginX = vw * 0.08;
-      const marginY = vh * 0.08;
-      const x = marginX + Math.random() * (vw - marginX * 2);
-      const y = marginY + Math.random() * (vh - marginY * 2);
+  bear.style.left = (Math.random() * (vw * 0.8) + vw * 0.1) + "px";
+  bear.style.top  = (Math.random() * (vh * 0.8) + vh * 0.1) + "px";
 
-      bear.style.left = x + "px";
-      bear.style.top  = y + "px";
+  document.body.appendChild(bear);
+  setTimeout(() => bear.remove(), 2000);
+}
 
-      document.body.appendChild(bear);
-      setTimeout(() => bear.remove(), 2000);
-    }
+setTimeout(() => {
+  spawnBear();
+  window._bearInterval = setInterval(spawnBear, 5000);
+}, 1200);
 
-    // start the bears after a little delay so page content renders first
-    setTimeout(() => {
-      spawnBear();
-      window._bearInterval = setInterval(spawnBear, 5000);
-    }, 1200);
-
-    // cleanup on page unload
-    window.addEventListener("beforeunload", () => {
-      if (window._bearInterval) clearInterval(window._bearInterval);
-    });
-  </script>
+window.addEventListener("beforeunload", () => {
+  if (window._bearInterval) clearInterval(window._bearInterval);
+});
+</script>
 </body>
 </html>
