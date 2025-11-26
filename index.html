@@ -137,12 +137,11 @@
   <!-- fact above the GIF -->
   <div id="fact">Loading chicken fact…</div>
 
-  <!-- resilient dancing chicken GIF: tries primary then fallbacks, then emoji -->
+  <!-- Primary dancing-chicken GIF (Tenor), script will try alternates if it fails -->
   <img id="chickenGif"
        class="chicken-gif"
-       src="https://media.giphy.com/media/3o6Zt6ML6BklcajjsA/giphy.gif"
+       src="https://media.tenor.com/images/7f1a6c8b9b2f4a8f3f1c2ad0c5a4a8e6/tenor.gif"
        alt="Dancing chicken">
-  <!-- note: that src is the primary — script will try alternates if it fails -->
 </div>
 
 <script>
@@ -205,7 +204,7 @@ updateCountdown();
 setInterval(updateCountdown, 1000);
 
 /* -------------------------
-   Click => Spawn chick (unchanged, placeholder)
+   Click => Spawn chick (unchanged placeholder)
 ------------------------- */
 const CLICK_CHICK_URL = "CLICK_CHICK_URL_HERE";
 
@@ -235,47 +234,38 @@ document.addEventListener("click", (ev) => {
 });
 
 /* -------------------------
-   Resilient chicken GIF logic
-   - primary src is already set in HTML
-   - script will attempt alternates if image fails
+   Resilient chicken GIF logic (tries 2 fallbacks, then emoji)
 ------------------------- */
 (function makeGifResilient() {
   const img = document.getElementById("chickenGif");
   if (!img) return;
 
-  // list of alternate GIF URLs to try in order (hosts chosen for diversity)
   const alternates = [
-    // primary is already the element src; these are tried on failure
-    "https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif",
-    "https://media.tenor.com/images/7f1a6c8b9b2f4a8f3f1c2ad0c5a4a8e6/tenor.gif",
-    // final site-based candidate (often available on gif DB style sites)
-    "https://gifdb.com/images/high/animated-little-tiny-chicken-dance-t3burmspy1xm319y.gif"
+    // first fallback: Giphy candidate
+    "https://media.giphy.com/media/26ufdipQqU2lhNA4g/giphy.gif",
+    // second fallback: another Tenor-style direct image
+    "https://media.tenor.com/images/9b2f3f2a0f4d5c7b6c1a2dcb8b1c9e00/tenor.gif"
   ];
 
-  // attempt count stored as data attribute
   img.dataset.tryIndex = "0";
 
-  img.addEventListener("error", function onErr() {
+  function onErr() {
     let idx = parseInt(img.dataset.tryIndex || "0", 10);
-
     if (idx < alternates.length) {
-      // try next alternate URL
       img.dataset.tryIndex = String(idx + 1);
       img.src = alternates[idx];
-      // next error will trigger again
     } else {
-      // all GIF attempts failed — replace with an emoji fallback element
       const emoji = document.createElement("div");
       emoji.className = "gif-fallback-emoji";
       emoji.textContent = "🐔";
       img.replaceWith(emoji);
       img.removeEventListener("error", onErr);
     }
-  });
+  }
 
-  // if the image loads successfully, nothing else happens
+  img.addEventListener("error", onErr);
 })();
-
+ 
 /* -------------------------
    Static bear + waving paw
 ------------------------- */
