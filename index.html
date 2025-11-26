@@ -145,6 +145,71 @@
 </div>
 
 <script>
+  /* -------------------------
+   Dynamic Music Based on Time Remaining
+------------------------- */
+
+// Public-domain classical music (MP3s from Wikimedia)
+const MUSIC_TRACKS = {
+  intense: "https://upload.wikimedia.org/wikipedia/commons/0/04/Beethoven_-_Symphony_No._5_%28Allegro_con_brio%29.ogg",
+  medium:  "https://upload.wikimedia.org/wikipedia/commons/0/06/Mozart_-_Eine_kleine_Nachtmusik_%28Allegro%29.ogg",
+  serene:  "https://upload.wikimedia.org/wikipedia/commons/0/01/Claude_Debussy_-_Clair_de_Lune.ogg"
+};
+
+const musicPlayer = document.getElementById("musicPlayer");
+let currentMusic = null;
+
+function updateMusic(diffMs) {
+  const hours = diffMs / 3600000;
+
+  let newTrack;
+  if (hours > 48) {
+    newTrack = MUSIC_TRACKS.intense; // far from event
+  } else if (hours > 12) {
+    newTrack = MUSIC_TRACKS.medium;  // getting closer
+  } else {
+    newTrack = MUSIC_TRACKS.serene;  // final hours
+  }
+
+  if (newTrack !== currentMusic) {
+    currentMusic = newTrack;
+    musicPlayer.src = newTrack;
+    musicPlayer.play().catch(() => {});
+  }
+}
+
+// Tie into the countdown timer updates
+function updateCountdown() {
+  const target = new Date("2025-11-29T19:00:00-06:00");
+  const now = new Date();
+  const diff = target - now;
+
+  updateMusic(diff);
+
+  if (diff <= 0) {
+    countdownEl.textContent = "🎉 It's Chicken Time!! 🎉";
+
+    // Optional: fade music out
+    musicPlayer.volume = 0.15;
+    const fade = setInterval(() => {
+      if (musicPlayer.volume > 0.01) {
+        musicPlayer.volume -= 0.01;
+      } else {
+        musicPlayer.pause();
+        clearInterval(fade);
+      }
+    }, 200);
+
+    return;
+  }
+
+  const days = Math.floor(diff / 86400000);
+  const hours = Math.floor((diff / 3600000) % 24);
+  const minutes = Math.floor((diff / 60000) % 60);
+  const seconds = Math.floor((diff / 1000) % 60);
+
+  countdownEl.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+}
 /* -------------------------
    Chicken facts (unchanged)
 ------------------------- */
