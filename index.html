@@ -12,8 +12,6 @@
       color: #fff;
       text-align: center;
       overflow: hidden;
-
-      /* Background image — replace if needed */
       background-image: url('https://raw.githubusercontent.com/vacidis-jpg/ChickenTime3/main/chicks-bg.png');
       background-size: cover;
       background-position: center;
@@ -54,6 +52,8 @@
       background: rgba(0,0,0,0.46);
       border-radius: 12px;
       font-size: 1.05rem;
+      opacity: 1;
+      transition: opacity 0.4s ease;
     }
 
     .chicken-gif {
@@ -128,7 +128,7 @@
 
 <script>
 /* -------------------------
-   Chicken fact
+   Chicken facts (cycled)
 ------------------------- */
 const facts = [
   "Chickens can remember over 100 individual faces!",
@@ -137,8 +137,22 @@ const facts = [
   "A hen turns her eggs about 50 times a day.",
   "Chickens dream during REM sleep!"
 ];
-document.getElementById("fact").textContent =
-  "📘 " + facts[Math.floor(Math.random() * facts.length)];
+
+let factIndex = 0;
+const factEl = document.getElementById("fact");
+
+function cycleFacts() {
+  factEl.style.opacity = 0;
+
+  setTimeout(() => {
+    factEl.textContent = "📘 " + facts[factIndex];
+    factEl.style.opacity = 1;
+    factIndex = (factIndex + 1) % facts.length;
+  }, 400);
+}
+
+cycleFacts();
+setInterval(cycleFacts, 7000);
 
 /* -------------------------
    Countdown
@@ -167,7 +181,7 @@ setInterval(updateCountdown, 1000);
 /* -------------------------
    Click => spawn chick image
 ------------------------- */
-const CLICK_CHICK_URL = "CLICK_CHICK_URL_HERE"; // replace when ready
+const CLICK_CHICK_URL = "CLICK_CHICK_URL_HERE";
 
 document.addEventListener("click", (ev) => {
   const img = new Image();
