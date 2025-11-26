@@ -1,176 +1,58 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Countdown to Chicken Time</title>
-
   <style>
-    html, body { height: 100%; margin: 0; }
-    body {
-      font-family: Arial, sans-serif;
-      color: #fff;
-      text-align: center;
-      overflow: hidden;
-
-      background-image: url('https://raw.githubusercontent.com/vacidis-jpg/ChickenTime3/main/chicks-bg.png');
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
+    html,body{height:100%;margin:0}
+    body{
+      font-family:Arial,Helvetica,sans-serif;
+      color:#fff;
+      text-align:center;
+      overflow:hidden;
+      background-image:url('https://raw.githubusercontent.com/vacidis-jpg/ChickenTime3/main/chicks-bg.png');
+      background-size:cover;
+      background-position:center;
+      background-repeat:no-repeat;
     }
+    .overlay{position:fixed;inset:0;background:rgba(0,0,0,0.35);pointer-events:none;z-index:0}
+    .content{position:relative;z-index:1;padding:28px 20px;max-width:980px;margin:0 auto}
+    h1{margin-top:18px;font-size:2.6rem;text-shadow:0 4px 12px rgba(0,0,0,0.75)}
+    #countdown{font-size:2.2rem;font-weight:700;margin-top:10px;text-shadow:0 4px 10px rgba(0,0,0,0.6)}
+    #fact{display:inline-block;margin-top:16px;padding:10px 14px;background:rgba(0,0,0,0.46);border-radius:12px;font-size:1.05rem}
 
-    .overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.35);
-      pointer-events: none;
-      z-index: 0;
-    }
+    /* GIF row (Option A: centered under countdown) */
+    .gif-row{margin-top:20px;display:flex;justify-content:center;gap:18px;align-items:center;flex-wrap:wrap}
+    .chicken-gif{width:240px;filter:drop-shadow(0 6px 12px rgba(0,0,0,0.6));border-radius:6px}
+    .gif-fallback-emoji{font-size:3rem;margin-top:12px}
 
-    .content {
-      position: relative;
-      z-index: 1;
-      padding: 28px 20px;
-      max-width: 980px;
-      margin: 0 auto;
-    }
+    @media (max-width:420px){ .chicken-gif{width:150px} }
 
-    h1 {
-      margin-top: 18px;
-      font-size: 2.6rem;
-      text-shadow: 0 4px 12px rgba(0,0,0,0.75);
-    }
+    /* click chick */
+    .click-chick{position:absolute;width:90px;pointer-events:none;transform:translate(-50%,-50%);animation:popChick 1s forwards;z-index:9999}
+    @keyframes popChick{0%{opacity:0;transform:translate(-50%,-50%) scale(0.2)}60%{opacity:1;transform:translate(-50%,-50%) scale(1.1)}100%{opacity:0;transform:translate(-50%,-50%) scale(1)}}
+    @media (max-width:420px){ .click-chick{width:64px} }
 
-    #countdown {
-      font-size: 2.2rem;
-      font-weight: 700;
-      margin-top: 10px;
-      text-shadow: 0 4px 10px rgba(0,0,0,0.6);
-    }
+    /* bear */
+    .bear-container{position:absolute;transform:translate(-50%,-50%);pointer-events:none;z-index:9999;animation:fadeBear 2s ease-in-out forwards}
+    @keyframes fadeBear{0%{opacity:0;transform:translate(-50%,-50%) scale(0.7)}15%{opacity:1;transform:translate(-50%,-50%) scale(1)}85%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(0.7)}}
+    .bear-head{font-size:4rem;text-shadow:3px 3px 12px rgba(0,0,0,.7)}
+    .bear-paw{position:absolute;right:-20px;top:5px;font-size:2.4rem;transform-origin:bottom center;animation:wavePaw .5s ease-in-out infinite alternate}
+    @keyframes wavePaw{0%{transform:rotate(20deg)}100%{transform:rotate(-20deg)}}
 
-    #fact {
-      display: inline-block;
-      margin-top: 16px;
-      padding: 10px 14px;
-      background: rgba(0,0,0,0.46);
-      border-radius: 12px;
-      font-size: 1.05rem;
-    }
-
-    .chicken-gif {
-      width: 240px;
-      margin-top: 18px;
-      filter: drop-shadow(0 6px 12px rgba(0,0,0,0.6));
-      display: block;
-      margin-left: auto;
-      margin-right: auto;
-    }
-
-    .gif-fallback-emoji {
-      display: inline-block;
-      font-size: 3rem;
-      margin-top: 18px;
-    }
-
-    .bear-container {
-      position: absolute;
-      transform: translate(-50%, -50%);
-      pointer-events: none;
-      z-index: 9999;
-      animation: fadeBear 2s ease-in-out forwards;
-    }
-
-    @keyframes fadeBear {
-      0% { opacity: 0; transform: translate(-50%,-50%) scale(0.7); }
-      15% { opacity: 1; transform: translate(-50%,-50%) scale(1); }
-      85% { opacity: 1; }
-      100% { opacity: 0; transform: translate(-50%,-50%) scale(0.7); }
-    }
-
-    .bear-head {
-      font-size: 4rem;
-      text-shadow: 3px 3px 12px rgba(0,0,0,.7);
-    }
-
-    .bear-paw {
-      position: absolute;
-      right: -20px;
-      top: 5px;
-      font-size: 2.4rem;
-      transform-origin: bottom center;
-      animation: wavePaw 0.5s ease-in-out infinite alternate;
-    }
-
-    @keyframes wavePaw {
-      0% { transform: rotate(20deg); }
-      100% { transform: rotate(-20deg); }
-    }
-
-    .click-chick {
-      position: absolute;
-      width: 90px;
-      pointer-events: none;
-      transform: translate(-50%,-50%);
-      animation: popChick 1s forwards;
-      z-index: 9999;
-    }
-
-    @keyframes popChick {
-      0% { opacity: 0; transform: translate(-50%,-50%) scale(0.2); }
-      60% { opacity: 1; transform: translate(-50%,-50%) scale(1.1); }
-      100% { opacity: 0; transform: translate(-50%,-50%) scale(1); }
-    }
-
-    #musicControls {
-      position: fixed;
-      bottom: 18px;
-      left: 18px;
-      background: rgba(0,0,0,0.6);
-      padding: 10px 12px;
-      border-radius: 10px;
-      border: 1px solid rgba(255,255,255,0.06);
-      z-index: 99999;
-      color: #fff;
-      font-size: 14px;
-      display: flex;
-      gap: 10px;
-      align-items: center;
-    }
-
-    #musicControls button {
-      background: rgba(255,255,255,0.06);
-      color: #fff;
-      border: 1px solid rgba(255,255,255,0.08);
-      padding: 6px 10px;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-
-    #volumeSlider {
-      width: 140px;
-    }
-
-    .sr-only {
-      position: absolute !important;
-      height: 1px; width: 1px;
-      overflow: hidden;
-      clip: rect(1px,1px,1px,1px);
-      white-space: nowrap;
-    }
-
-    @media (max-width: 420px) {
-      .chicken-gif { width: 160px; }
-      .click-chick { width: 64px; }
-      #musicControls { left: 12px; bottom: 12px; padding: 8px; gap: 8px; }
-      #volumeSlider { width: 100px; }
-    }
+    /* music controls */
+    #musicControls{position:fixed;bottom:18px;left:18px;background:rgba(0,0,0,0.6);padding:10px 12px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);z-index:99999;color:#fff;font-size:14px;display:flex;gap:10px;align-items:center}
+    #musicControls button{background:rgba(255,255,255,0.06);color:#fff;border:1px solid rgba(255,255,255,0.08);padding:6px 10px;border-radius:8px;cursor:pointer}
+    #volumeSlider{width:140px}
+    .sr-only{position:absolute!important;height:1px;width:1px;overflow:hidden;clip:rect(1px,1px,1px,1px);white-space:nowrap}
   </style>
 </head>
-
 <body>
   <div class="overlay"></div>
 
-  <audio id="musicPlayer" autoplay loop style="display:none;"></audio>
+  <!-- audio element: use visibility hidden so browsers treat it as present -->
+  <audio id="musicPlayer" autoplay loop preload="auto" style="visibility:hidden;height:0;"></audio>
 
   <div class="content">
     <h1>🐔 Countdown to Chicken Time</h1>
@@ -178,39 +60,60 @@
 
     <div id="fact">Loading chicken fact…</div>
 
-    <!-- GIF element (will be switched every 10s) -->
-    <img id="chickenGif"
-         class="chicken-gif"
-         src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExZHY4dDlub24yd3RpZndvc2pmdGtmcHVseDJ6cHo4bXNhN21yOHIzOCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/bJ91q0UsnGbacudx2g/giphy.gif"
-         alt="Dancing chicken">
+    <!-- TWO GIFs side-by-side (Option A) -->
+    <div class="gif-row">
+      <img id="gifA" class="chicken-gif" alt="Dancing chicken A"
+           src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExZHY4dDlub24yd3RpZndvc2pmdGtmcHVseDJ6cHo4bXNhN21yOHIzOCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/bJ91q0UsnGbacudx2g/giphy.gif">
+      <img id="gifB" class="chicken-gif" alt="Dancing chicken B"
+           src="https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExaDIyZ2hnOXliZXNzeGxvYmhpdzM2dnhkeWRjaWhiYTYyZzQ4dTlyeSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/AgVa4rSV8cTBpdLYjs/giphy.gif">
+    </div>
   </div>
 
+  <!-- Music control UI -->
   <div id="musicControls" aria-live="polite">
     <button id="muteBtn" aria-pressed="false">🔊 Mute</button>
     <label for="volumeSlider" class="sr-only">Volume</label>
-    <input id="volumeSlider" type="range" min="0" max="1" step="0.01" value="1" />
+    <input id="volumeSlider" type="range" min="0" max="1" step="0.01" value="1">
   </div>
 
 <script>
 /* -------------------------
-   Cycle GIFs every 10 seconds
+   GIF resilience (each GIF gets its own fallback list)
 ------------------------- */
-const gifEl = document.getElementById("chickenGif");
+function makeGifResilient(imgId, alternates){
+  const img = document.getElementById(imgId);
+  if(!img) return;
+  img.dataset.tryIndex = "0";
 
-const gifList = [
-  "https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExZHY4dDlub24yd3RpZndvc2pmdGtmcHVseDJ6cHo4bXNhN21yOHIzOCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/bJ91q0UsnGbacudx2g/giphy.gif",
-  "https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExaDIyZ2hnOXliZXNzeGxvYmhpdzM2dnhkeWRjaWhiYTYyZzQ4dTlyeSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/AgVa4rSV8cTBpdLYjs/giphy.gif"
-];
+  img.addEventListener('error', function onErr(){
+    let idx = parseInt(img.dataset.tryIndex || "0", 10);
+    if(idx < alternates.length){
+      img.dataset.tryIndex = String(idx + 1);
+      img.src = alternates[idx];
+    } else {
+      // replace with emoji fallback node
+      const emoji = document.createElement('div');
+      emoji.className = 'gif-fallback-emoji';
+      emoji.textContent = '🐔';
+      img.replaceWith(emoji);
+      img.removeEventListener('error', onErr);
+    }
+  });
+}
 
-let gifIndex = 0;
+// alternates arrays (small set; adjust if you have other URLs)
+makeGifResilient('gifA', [
+  "https://media.giphy.com/media/26ufdipQqU2lhNA4g/giphy.gif",
+  "https://media.tenor.com/images/9b2f3f2a0f4d5c7b6c1a2dcb8b1c9e00/tenor.gif"
+]);
 
-setInterval(() => {
-  gifIndex = (gifIndex + 1) % gifList.length;
-  gifEl.src = gifList[gifIndex];
-}, 10000);
+makeGifResilient('gifB', [
+  "https://media.giphy.com/media/3oEduSbSGpGaRX2Vri/giphy.gif",
+  "https://media.tenor.com/images/4b1f1d2a6c0c9d2a1b3f9cf6a1e2b000/tenor.gif"
+]);
 
 /* -------------------------
-   Chicken facts
+   Chicken facts loop
 ------------------------- */
 const facts = [
   "Chickens can remember over 100 individual faces!",
@@ -229,91 +132,86 @@ const facts = [
   "Chickens use REM sleep like humans.",
   "Chickens see ultraviolet light!"
 ];
-
-const factEl = document.getElementById("fact");
+const factEl = document.getElementById('fact');
 let factIndex = Math.floor(Math.random() * facts.length);
-
-function updateFact() {
-  factEl.textContent = "📘 " + facts[factIndex];
-  factIndex = (factIndex + 1) % facts.length;
-}
+function updateFact(){ factEl.textContent = '📘 ' + facts[factIndex]; factIndex = (factIndex + 1) % facts.length; }
 updateFact();
 setInterval(updateFact, 7000);
 
 /* -------------------------
-   Countdown + Dynamic Music
+   Countdown + music switching
 ------------------------- */
-
 const TARGET_ISO = "2025-11-29T19:00:00-06:00";
 
-// LOCAL MP3 FILES — EXACT FILENAMES PROVIDED
+// local MP3 filenames (URL-encoded for GitHub Pages)
 const MUSIC_TRACKS = {
   intense: "Classicals.de%20-%20Beethoven%20-%20The%20Tempest%20-%201.%20Movement%20-%20Piano%20Sonata%20No.%2017%20in%20D%20Minor%2C%20Op.%2031%2C%20No.%202.mp3",
   medium:  "Classicals.de%20-%20Beethoven%20-%20The%20Tempest%20-%201.%20Movement%20-%20Sonata%20No.%2017%2C%20Op.%2031%2C%20No.%202%20-%20Arranged%20for%20Strings.mp3",
   serene:  "Classicals.de%20-%20Beethoven%20-%20The%20Tempest%20-%202.%20Movement%20-%20Piano%20Sonata%20No.%2017%20in%20D%20Minor%2C%20Op.%2031%2C%20No.%202.mp3"
 };
 
-const musicPlayer = document.getElementById("musicPlayer");
-let currentTrack = null;
-
-const muteBtn = document.getElementById("muteBtn");
-const volumeSlider = document.getElementById("volumeSlider");
+const musicPlayer = document.getElementById('musicPlayer');
+const muteBtn = document.getElementById('muteBtn');
+const volumeSlider = document.getElementById('volumeSlider');
 
 musicPlayer.volume = parseFloat(volumeSlider.value || "1");
 musicPlayer.muted = false;
 
 let audioUnlocked = false;
-function unlockAudioOnce() {
-  if (audioUnlocked) return;
+function unlockAudioOnce(){
+  if(audioUnlocked) return;
   audioUnlocked = true;
+  // try to play current src (might still be blocked until gesture)
   musicPlayer.play().catch(()=>{});
 }
-document.addEventListener("click", unlockAudioOnce, { once: true });
-document.addEventListener("keydown", unlockAudioOnce, { once: true });
-document.addEventListener("touchstart", unlockAudioOnce, { once: true });
+document.addEventListener('click', unlockAudioOnce, { once: true });
+document.addEventListener('keydown', unlockAudioOnce, { once: true });
+document.addEventListener('touchstart', unlockAudioOnce, { once: true });
 
-function chooseTrackByRemaining(diffMs) {
+function chooseTrackByRemaining(diffMs){
   const hours = diffMs / 3600000;
-  if (hours > 48) return MUSIC_TRACKS.intense;
-  if (hours > 12) return MUSIC_TRACKS.medium;
+  if(hours > 48) return MUSIC_TRACKS.intense;
+  if(hours > 12) return MUSIC_TRACKS.medium;
   return MUSIC_TRACKS.serene;
 }
 
-function updateMusic(diffMs) {
+let currentTrack = null;
+function updateMusic(diffMs){
   const chosen = chooseTrackByRemaining(diffMs);
-  if (chosen !== currentTrack) {
+  if(chosen !== currentTrack){
     currentTrack = chosen;
-    const prevVolume = musicPlayer.volume;
+    const prevVol = musicPlayer.volume;
     const wasMuted = musicPlayer.muted;
-
     musicPlayer.src = chosen;
-    musicPlayer.volume = prevVolume;
+    musicPlayer.volume = prevVol;
     musicPlayer.muted = wasMuted;
-
-    if (audioUnlocked) musicPlayer.play().catch(()=>{});
+    if(audioUnlocked) musicPlayer.play().catch(()=>{});
   }
 }
 
-const countdownEl = document.getElementById("countdown");
-
-function updateCountdown() {
+const countdownEl = document.getElementById('countdown');
+function updateCountdown(){
   const target = new Date(TARGET_ISO);
   const now = new Date();
   const diff = target - now;
 
+  // update music selection
   updateMusic(diff);
 
-  if (diff <= 0) {
+  if(diff <= 0){
     countdownEl.textContent = "🎉 It's Chicken Time!! 🎉";
-    let vol = musicPlayer.volume;
-    const fade = setInterval(() => {
-      vol = Math.max(0, vol - 0.02);
-      musicPlayer.volume = vol;
-      if (vol <= 0.01) {
-        musicPlayer.pause();
-        clearInterval(fade);
-      }
-    }, 150);
+    // fade music out
+    try{
+      let vol = musicPlayer.volume;
+      const fade = setInterval(() => {
+        vol = Math.max(0, vol - 0.02);
+        musicPlayer.volume = vol;
+        if(vol <= 0.01){
+          musicPlayer.pause();
+          clearInterval(fade);
+        }
+      }, 150);
+    }catch(e){}
     return;
   }
 
@@ -322,115 +220,95 @@ function updateCountdown() {
   const minutes = Math.floor((diff / 60000) % 60);
   const seconds = Math.floor((diff / 1000) % 60);
 
-  countdownEl.textContent =
-    `${days}d ${hours}h ${minutes}m ${seconds}s`;
+  countdownEl.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
 }
 
 updateCountdown();
 setInterval(updateCountdown, 1000);
 
 /* -------------------------
-   Click => Spawn chick
+   Click -> spawn chick
 ------------------------- */
 const CLICK_CHICK_URL = "CLICK_CHICK_URL_HERE";
-
-document.addEventListener("click", (ev) => {
-  if (!ev.clientX && !ev.clientY) return;
-
+document.addEventListener('click', (ev) => {
+  // keep unlockAudioOnce working (separate)
+  if(!ev.clientX && !ev.clientY) return;
   const img = new Image();
-  img.className = "click-chick";
-  img.style.left = ev.clientX + "px";
-  img.style.top = ev.clientY + "px";
+  img.className = 'click-chick';
+  img.style.left = ev.clientX + 'px';
+  img.style.top = ev.clientY + 'px';
   img.src = CLICK_CHICK_URL;
-
   img.onerror = () => {
     img.remove();
-    const fallback = document.createElement("div");
-    fallback.className = "click-chick";
-    fallback.style.left = ev.clientX + "px";
-    fallback.style.top  = ev.clientY + "px";
-    fallback.textContent = "🐤";
-    fallback.style.fontSize = "2.4rem";
+    const fallback = document.createElement('div');
+    fallback.className = 'click-chick';
+    fallback.style.left = ev.clientX + 'px';
+    fallback.style.top = ev.clientY + 'px';
+    fallback.textContent = '🐤';
+    fallback.style.fontSize = '2.4rem';
     document.body.appendChild(fallback);
-    setTimeout(() => fallback.remove(), 1000);
+    setTimeout(()=> fallback.remove(), 1000);
   };
-
   img.onload = () => {
     document.body.appendChild(img);
-    setTimeout(() => img.remove(), 1000);
+    setTimeout(()=> img.remove(), 1000);
   };
 });
 
 /* -------------------------
-   Bear spawns
+   Bear spawner
 ------------------------- */
-function spawnBear() {
-  const bear = document.createElement("div");
-  bear.className = "bear-container";
-
-  bear.innerHTML = `
-    <div class="bear-head">🐻</div>
-    <div class="bear-paw">👋</div>
-  `;
-
-  bear.style.left = (Math.random() * window.innerWidth) + "px";
-  bear.style.top  = (Math.random() * window.innerHeight) + "px";
-
+function spawnBear(){
+  const bear = document.createElement('div');
+  bear.className = 'bear-container';
+  bear.innerHTML = '<div class="bear-head">🐻</div><div class="bear-paw">👋</div>';
+  const vw = window.innerWidth, vh = window.innerHeight;
+  bear.style.left = (Math.random() * (vw * 0.8) + vw * 0.1) + 'px';
+  bear.style.top  = (Math.random() * (vh * 0.8) + vh * 0.1) + 'px';
   document.body.appendChild(bear);
-  setTimeout(() => bear.remove(), 2000);
+  setTimeout(()=> bear.remove(), 2000);
 }
-
-setTimeout(() => {
-  spawnBear();
-  window._bearInterval = setInterval(spawnBear, 5005);
-}, 1200);
-
-window.addEventListener("beforeunload", () => {
-  if (window._bearInterval) clearInterval(window._bearInterval);
-});
+setTimeout(()=>{ spawnBear(); window._bearInterval = setInterval(spawnBear, 5000); }, 1200);
+window.addEventListener('beforeunload', ()=>{ if(window._bearInterval) clearInterval(window._bearInterval); });
 
 /* -------------------------
-   Music Controls
+   Music Controls wiring
 ------------------------- */
-muteBtn.addEventListener("click", () => {
+muteBtn.addEventListener('click', () => {
   musicPlayer.muted = !musicPlayer.muted;
-  muteBtn.textContent = musicPlayer.muted ? "🔈 Unmute" : "🔊 Mute";
-  muteBtn.setAttribute("aria-pressed", String(musicPlayer.muted));
+  muteBtn.textContent = musicPlayer.muted ? '🔈 Unmute' : '🔊 Mute';
+  muteBtn.setAttribute('aria-pressed', String(musicPlayer.muted));
 });
 
-volumeSlider.addEventListener("input", (e) => {
+volumeSlider.addEventListener('input', (e) => {
   const v = parseFloat(e.target.value);
   musicPlayer.volume = v;
-  if (v <= 0.001) {
-    muteBtn.textContent = "🔈 Unmute";
-    muteBtn.setAttribute("aria-pressed", "true");
+  if(v <= 0.001){
+    muteBtn.textContent = '🔈 Unmute';
+    muteBtn.setAttribute('aria-pressed','true');
   } else {
-    if (!musicPlayer.muted) {
-      muteBtn.textContent = "🔊 Mute";
-      muteBtn.setAttribute("aria-pressed", "false");
+    if(!musicPlayer.muted){
+      muteBtn.textContent = '🔊 Mute';
+      muteBtn.setAttribute('aria-pressed','false');
     }
   }
 });
 
-musicPlayer.addEventListener("volumechange", () => {
+musicPlayer.addEventListener('volumechange', () => {
   const vol = Math.round((musicPlayer.volume ?? 1) * 100) / 100;
-  if (parseFloat(volumeSlider.value) !== vol) {
-    volumeSlider.value = String(vol);
-  }
-
-  muteBtn.textContent = musicPlayer.muted ? "🔈 Unmute" : "🔊 Mute";
-  muteBtn.setAttribute("aria-pressed", String(musicPlayer.muted));
+  if(parseFloat(volumeSlider.value) !== vol) volumeSlider.value = String(vol);
+  muteBtn.textContent = musicPlayer.muted ? '🔈 Unmute' : '🔊 Mute';
+  muteBtn.setAttribute('aria-pressed', String(musicPlayer.muted));
 });
 
 /* -------------------------
-   Initialize track
+   Initialize current track (so src exists)
 ------------------------- */
-(function initTrackOnLoad() {
-  const target = new Date(TARGET_ISO);
-  const diff = target - new Date();
+(function initTrack(){
+  const diff = (new Date(TARGET_ISO)) - new Date();
   currentTrack = chooseTrackByRemaining(diff);
   musicPlayer.src = currentTrack;
-  if (audioUnlocked) musicPlayer.play().catch(()=>{});
+  if(audioUnlocked) musicPlayer.play().catch(()=>{});
 })();
 </script>
 </body>
