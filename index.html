@@ -1,252 +1,184 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Countdown to Chicken Time</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chicken Time Countdown</title>
 
-  <style>
-    html, body { height: 100%; margin: 0; }
-    body {
-      font-family: Arial, sans-serif;
-      color: #fff;
-      text-align: center;
-      overflow: hidden;
+<style>
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background-image: url('https://raw.githubusercontent.com/PawelMikolajczyk/ChickenTime3/main/assets/chicks-bg.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+  }
 
-      background-image: url('https://raw.githubusercontent.com/vacidis-jpg/ChickenTime3/main/chicks-bg.png');
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-    }
+  h1 {
+    margin-top: 20px;
+    font-size: 2.5rem;
+    color: #fff;
+    text-shadow: 2px 2px 5px black;
+  }
 
-    .overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.35);
-      pointer-events: none;
-      z-index: 0;
-    }
+  #countdown {
+    font-size: 2rem;
+    margin-top: 10px;
+    padding: 10px;
+    color: yellow;
+    background: rgba(0, 0, 0, 0.6);
+    display: inline-block;
+    border-radius: 10px;
+  }
 
-    .content {
-      position: relative;
-      z-index: 1;
-      padding: 28px 20px;
-    }
+  .chicken-gif {
+    width: 250px;
+    margin-top: 20px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+  }
 
-    h1 {
-      margin-top: 18px;
-      font-size: 2.6rem;
-      text-shadow: 0 4px 12px rgba(0,0,0,0.75);
-    }
+  #fact {
+    margin-top: 25px;
+    padding: 15px;
+    width: 70%;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    background: rgba(255, 255, 255, 0.85);
+    border-radius: 12px;
+    font-size: 1.3rem;
+    box-shadow: 0 0 10px #0005;
+  }
 
-    #countdown {
-      font-size: 2.2rem;
-      font-weight: 700;
-      margin-top: 10px;
-      text-shadow: 0 4px 10px rgba(0,0,0,0.6);
-    }
+  /* Chick click animation */
+  .click-chick {
+    position: absolute;
+    width: 60px;
+    pointer-events: none;
+    animation: pop 0.9s ease-out forwards;
+  }
 
-    #fact {
-      display: inline-block;
-      margin-top: 16px;
-      padding: 10px 14px;
-      background: rgba(0,0,0,0.46);
-      border-radius: 12px;
-      font-size: 1.05rem;
-    }
+  @keyframes pop {
+    0% { transform: scale(0.2); opacity: 1; }
+    80% { transform: scale(1); opacity: 1; }
+    100% { transform: scale(1); opacity: 0; }
+  }
 
-    .chicken-gif {
-      width: 240px;
-      margin-top: 20px;
-      filter: drop-shadow(0 6px 12px rgba(0,0,0,0.6));
-    }
+  /* Bear pop-in */
+  .bear {
+    position: fixed;
+    width: 140px;
+    bottom: 20px;
+    right: 20px;
+    opacity: 0;
+    animation: appear 2s ease-in-out forwards;
+  }
 
-    .bear-container {
-      position: absolute;
-      transform: translate(-50%, -50%);
-      pointer-events: none;
-      z-index: 9999;
-      animation: fadeBear 2s ease-in-out forwards;
-    }
-
-    @keyframes fadeBear {
-      0% { opacity: 0; transform: translate(-50%,-50%) scale(0.7); }
-      15% { opacity: 1; transform: translate(-50%,-50%) scale(1); }
-      85% { opacity: 1; }
-      100% { opacity: 0; transform: translate(-50%,-50%) scale(0.7); }
-    }
-
-    .bear-head {
-      font-size: 4rem;
-      text-shadow: 3px 3px 12px rgba(0,0,0,.7);
-    }
-
-    .bear-paw {
-      position: absolute;
-      right: -20px;
-      top: 5px;
-      font-size: 2.4rem;
-      transform-origin: bottom center;
-      animation: wavePaw 0.5s ease-in-out infinite alternate;
-    }
-
-    @keyframes wavePaw {
-      0% { transform: rotate(20deg); }
-      100% { transform: rotate(-20deg); }
-    }
-
-    .click-chick {
-      position: absolute;
-      width: 90px;
-      pointer-events: none;
-      transform: translate(-50%,-50%);
-      animation: popChick 1s forwards;
-      z-index: 9999;
-    }
-
-    @keyframes popChick {
-      0% { opacity: 0; transform: translate(-50%,-50%) scale(0.2); }
-      60% { opacity: 1; transform: translate(-50%,-50%) scale(1.1); }
-      100% { opacity: 0; transform: translate(-50%,-50%) scale(1); }
-    }
-  </style>
+  @keyframes appear {
+    0% { opacity: 0; transform: translateY(20px); }
+    15% { opacity: 1; transform: translateY(0); }
+    85% { opacity: 1; }
+    100% { opacity: 0; transform: translateY(20px); }
+  }
+</style>
 </head>
 
 <body>
-<div class="overlay"></div>
 
-<div class="content">
-  <h1>🐔 Countdown to Chicken Time</h1>
+<h1>🐔 Countdown to Chicken Time!</h1>
 
-  <div id="countdown">Loading…</div>
+<div id="countdown">Loading…</div>
 
-  <!-- GIF moved directly below the countdown -->
-  <img class="chicken-gif"
-       src="https://media.tenor.com/7vTfp14RJC4AAAAi/chicken-dance.gif"
-       alt="Dancing chicken">
+<!-- Dancing chicken GIF -->
+<img class="chicken-gif"
+     src="https://media.tenor.com/7vTfp14RJC4AAAAi/chicken-dance.gif"
+     alt="Dancing Chicken">
 
-  <div id="fact">Loading chicken fact…</div>
-</div>
+<!-- Chicken Fact of the Day -->
+<div id="fact">Loading chicken facts…</div>
+
 
 <script>
-/* -------------------------
-   Chicken facts (tripled list + cycling)
-------------------------- */
-const facts = [
-  "Chickens can remember over 100 individual faces!",
-  "Baby chicks communicate with their mother before hatching.",
-  "Chickens have excellent color vision.",
-  "A hen turns her eggs about 50 times a day.",
-  "Chickens dream during REM sleep!",
+/* ---------------- COUNTDOWN TIMER ---------------- */
+const endDate = new Date("November 29, 2025 19:00:00 CST");
 
-  "Roosters have built-in alarm clocks and crow based on sunlight.",
-  "Chickens can run up to 9 mph.",
-  "Some hens sing a little song after laying an egg.",
-  "Chickens taste salt but not sweetness.",
-  "A group of chickens is called a flock.",
-
-  "Chickens have over 30 unique vocalizations.",
-  "Chicks imprint on the first moving thing they see.",
-  "Chickens can sense time intervals.",
-  "Chickens use REM sleep like humans.",
-  "Chickens see ultraviolet light!"
-];
-
-const factEl = document.getElementById("fact");
-let factIndex = Math.floor(Math.random() * facts.length);
-
-function updateFact() {
-  factEl.textContent = "📘 " + facts[factIndex];
-  factIndex = (factIndex + 1) % facts.length;
-}
-
-updateFact();
-setInterval(updateFact, 7000);
-
-/* -------------------------
-   Countdown
-------------------------- */
 function updateCountdown() {
-  const target = new Date("2025-11-29T19:00:00-06:00");
   const now = new Date();
-  const diff = target - now;
+  const diff = endDate - now;
 
   if (diff <= 0) {
-    countdownEl.textContent = "🎉 It's Chicken Time!! 🎉";
+    document.getElementById("countdown").innerHTML = "🐔 IT'S CHICKEN TIME!! 🐔";
     return;
   }
 
-  const days = Math.floor(diff / 86400000);
-  const hours = Math.floor((diff / 3600000) % 24);
-  const minutes = Math.floor((diff / 60000) % 60);
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+  const minutes = Math.floor((diff / (1000 * 60)) % 60);
   const seconds = Math.floor((diff / 1000) % 60);
 
-  countdownEl.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+  document.getElementById("countdown").innerHTML =
+    `${days}d ${hours}h ${minutes}m ${seconds}s`;
 }
-const countdownEl = document.getElementById("countdown");
-updateCountdown();
 setInterval(updateCountdown, 1000);
+updateCountdown();
 
-/* -------------------------
-   Click => Spawn chick
-------------------------- */
-const CLICK_CHICK_URL = "CLICK_CHICK_URL_HERE";
 
-document.addEventListener("click", (ev) => {
-  const img = new Image();
-  img.className = "click-chick";
-  img.style.left = ev.clientX + "px";
-  img.style.top = ev.clientY + "px";
-  img.src = CLICK_CHICK_URL;
+/* ---------------- CHICKEN FACTS (TRIPLED) ---------------- */
+const facts = [
+  "Chickens can remember over 100 faces — human and chicken!",
+  "Baby chicks communicate with their mothers before hatching.",
+  "Chickens dream just like humans!",
+  "Chickens are the closest living relatives of the T. rex.",
+  "Roosters have built-in earplugs to protect them when crowing.",
+  "A chicken once lived 18 months without a head!",
+  "Hens teach specific calls to their chicks while still in the egg.",
+  "Chickens can run up to 9 miles per hour.",
+  "Some hens purr when they are happy."
+];
 
-  img.onerror = () => {
-    img.remove();
-    const fallback = document.createElement("div");
-    fallback.className = "click-chick";
-    fallback.style.left = ev.clientX + "px";
-    fallback.style.top  = ev.clientY + "px";
-    fallback.textContent = "🐤";
-    fallback.style.fontSize = "2.4rem";
-    document.body.appendChild(fallback);
-    setTimeout(() => fallback.remove(), 1000);
-  };
+let factIndex = 0;
+function cycleFacts() {
+  document.getElementById("fact").innerHTML = facts[factIndex];
+  factIndex = (factIndex + 1) % facts.length;
+}
+cycleFacts();
+setInterval(cycleFacts, 7000);
 
-  img.onload = () => {
-    document.body.appendChild(img);
-    setTimeout(() => img.remove(), 1000);
-  };
+
+/* ---------------- CLICK TO SPAWN CHICKS ---------------- */
+const CLICK_CHICK_URL =
+  "https://raw.githubusercontent.com/PawelMikolajczyk/ChickenTime3/main/assets/click-chick.png";
+
+document.addEventListener("click", function(event) {
+  const chick = document.createElement("img");
+  chick.src = CLICK_CHICK_URL;
+  chick.className = "click-chick";
+  chick.style.left = event.pageX - 30 + "px";
+  chick.style.top = event.pageY - 30 + "px";
+  document.body.appendChild(chick);
+
+  setTimeout(() => chick.remove(), 900);
 });
 
-/* -------------------------
-   Static bear + waving paw
-------------------------- */
-function spawnBear() {
-  const bear = document.createElement("div");
-  bear.className = "bear-container";
 
-  bear.innerHTML = `
-    <div class="bear-head">🐻</div>
-    <div class="bear-paw">👋</div>
-  `;
+/* ---------------- BEAR APPEAR EVERY 5 SECONDS ---------------- */
+const BEAR_URL =
+  "https://raw.githubusercontent.com/PawelMikolajczyk/ChickenTime3/main/assets/bear-wave.png";
 
-  const vw = window.innerWidth;
-  const vh = window.innerHeight;
-
-  bear.style.left = (Math.random() * (vw * 0.8) + vw * 0.1) + "px";
-  bear.style.top  = (Math.random() * (vh * 0.8) + vh * 0.1) + "px";
-
+function showBear() {
+  const bear = document.createElement("img");
+  bear.src = BEAR_URL;
+  bear.className = "bear";
   document.body.appendChild(bear);
+
   setTimeout(() => bear.remove(), 2000);
 }
-
-setTimeout(() => {
-  spawnBear();
-  window._bearInterval = setInterval(spawnBear, 5000);
-}, 1200);
-
-window.addEventListener("beforeunload", () => {
-  if (window._bearInterval) clearInterval(window._bearInterval);
-});
+setInterval(showBear, 5000);
 </script>
+
 </body>
 </html>
