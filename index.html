@@ -12,6 +12,7 @@
       color: #fff;
       text-align: center;
       overflow: hidden;
+
       background-image: url('https://raw.githubusercontent.com/vacidis-jpg/ChickenTime3/main/chicks-bg.png');
       background-size: cover;
       background-position: center;
@@ -52,8 +53,6 @@
       background: rgba(0,0,0,0.46);
       border-radius: 12px;
       font-size: 1.05rem;
-      opacity: 1;
-      transition: opacity 0.4s ease;
     }
 
     .chicken-gif {
@@ -118,17 +117,20 @@
 
 <div class="content">
   <h1>🐔 Countdown to Chicken Time</h1>
-  <div id="countdown">Loading…</div>
-  <div id="fact">Loading chicken fact…</div>
 
+  <div id="countdown">Loading…</div>
+
+  <!-- GIF moved directly below the countdown -->
   <img class="chicken-gif"
        src="https://media.tenor.com/7vTfp14RJC4AAAAi/chicken-dance.gif"
        alt="Dancing chicken">
+
+  <div id="fact">Loading chicken fact…</div>
 </div>
 
 <script>
 /* -------------------------
-   Chicken facts (cycled)
+   Chicken facts (tripled list + cycling)
 ------------------------- */
 const facts = [
   "Chickens can remember over 100 individual faces!",
@@ -136,33 +138,30 @@ const facts = [
   "Chickens have excellent color vision.",
   "A hen turns her eggs about 50 times a day.",
   "Chickens dream during REM sleep!",
-  "Chickens have a complex social hierarchy called a pecking order.",
-  "A chicken’s heart beats around 300 times per minute.",
-  "Chickens use over 30 unique vocalizations to communicate.",
-  "Hens purr softly when they are content — similar to cats!",
-  "Baby chicks imprint on the first moving object they see, often their mother.",
-  "Roosters can recognize up to 30 different hens by their voices alone.",
-  "Chickens can sense time and anticipate future events, like feeding.",
-  "The world’s oldest chicken lived to be 16 years old.",
-  "Chickens can run at speeds up to 9 miles per hour.",
-  "Chickens have a third eyelid that helps keep their eyes clean."
+
+  "Roosters have built-in alarm clocks and crow based on sunlight.",
+  "Chickens can run up to 9 mph.",
+  "Some hens sing a little song after laying an egg.",
+  "Chickens taste salt but not sweetness.",
+  "A group of chickens is called a flock.",
+
+  "Chickens have over 30 unique vocalizations.",
+  "Chicks imprint on the first moving thing they see.",
+  "Chickens can sense time intervals.",
+  "Chickens use REM sleep like humans.",
+  "Chickens see ultraviolet light!"
 ];
 
-let factIndex = 0;
 const factEl = document.getElementById("fact");
+let factIndex = Math.floor(Math.random() * facts.length);
 
-function cycleFacts() {
-  factEl.style.opacity = 0;
-
-  setTimeout(() => {
-    factEl.textContent = "📘 " + facts[factIndex];
-    factEl.style.opacity = 1;
-    factIndex = (factIndex + 1) % facts.length;
-  }, 400);
+function updateFact() {
+  factEl.textContent = "📘 " + facts[factIndex];
+  factIndex = (factIndex + 1) % facts.length;
 }
 
-cycleFacts();
-setInterval(cycleFacts, 7000);
+updateFact();
+setInterval(updateFact, 7000);
 
 /* -------------------------
    Countdown
@@ -189,7 +188,7 @@ updateCountdown();
 setInterval(updateCountdown, 1000);
 
 /* -------------------------
-   Click => spawn chick image
+   Click => Spawn chick
 ------------------------- */
 const CLICK_CHICK_URL = "CLICK_CHICK_URL_HERE";
 
@@ -219,7 +218,7 @@ document.addEventListener("click", (ev) => {
 });
 
 /* -------------------------
-   Static bear head + waving paw
+   Static bear + waving paw
 ------------------------- */
 function spawnBear() {
   const bear = document.createElement("div");
