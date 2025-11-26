@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Countdown to Chicken Time</title>
+    <title>Chicken Time Countdown</title>
 
     <style>
         body {
@@ -11,161 +11,94 @@
             padding: 0;
             font-family: Arial, sans-serif;
             text-align: center;
-            color: #333;
-            background-image: url('https://images.unsplash.com/photo-1615193437031-1c67d5c5178d?auto=format&fit=crop&w=1600&q=80');
+            color: #fff;
+            overflow-x: hidden;
+
+            /* Background image of baby chicks */
+            background-image: url("https://images.unsplash.com/photo-1518791841217-8f162f1e1131?auto=format&fit=crop&w=1600&q=80");
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
-            overflow-x: hidden;
-        }
-
-        /* Background dimmer
-           Makes text readable */
-        body::before {
-            content: "";
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255,255,255,0.35);
-            z-index: -1;
         }
 
         h1 {
-            font-size: 3rem;
             margin-top: 30px;
-            text-shadow: 2px 2px 5px #fff;
+            font-size: 3rem;
+            text-shadow: 2px 2px 6px rgba(0,0,0,0.5);
         }
 
         #countdown {
-            font-size: 2.5rem;
-            font-weight: bold;
-            margin-top: 15px;
-            text-shadow: 2px 2px 4px #fff;
-        }
-
-        #fact {
+            font-size: 2rem;
             margin-top: 20px;
-            padding: 10px;
-            font-size: 1.2rem;
-            background: rgba(255,255,255,0.7);
-            display: inline-block;
-            border-radius: 10px;
+            font-weight: bold;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.6);
         }
 
-        /* Dancing Chicken GIF */
-        .dancing-chicken {
-            margin-top: 30px;
-            width: 260px;
-        }
-
-        /* Chick that appears on click */
+        /* Click-chicken animation */
         .peck-chick {
             position: absolute;
             width: 80px;
+            height: auto;
             pointer-events: none;
-            animation: peck 0.7s ease-out forwards;
+            animation: pop 0.7s ease-out forwards;
         }
 
-        @keyframes peck {
-            0% { transform: scale(0.2); opacity: 1; }
-            50% { transform: scale(1.1) translateY(-10px); opacity: 1; }
-            100% { transform: scale(0.2); opacity: 0; }
+        @keyframes pop {
+            0% { transform: scale(0.2); opacity: 0; }
+            40% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(1); opacity: 0; }
         }
-
-        /* Happy Waving Bears */
-        .bear {
-            position: absolute;
-            font-size: 4rem;
-            animation: wave 2s ease-in-out;
-        }
-
-        @keyframes wave {
-            0% { transform: translateY(20px) scale(0.5); opacity: 0; }
-            20% { transform: translateY(0) scale(1); opacity: 1; }
-            80% { opacity: 1; }
-            100% { transform: translateY(-20px) scale(0.5); opacity: 0; }
-        }
-
     </style>
 </head>
 <body>
 
-    <h1>🐔 Countdown to Chicken Time</h1>
-    <div id="countdown">Loading…</div>
-
-    <div id="fact">Chicken fact of the day loading…</div>
-
-    <img src="https://media.tenor.com/uI3z-BG9UuMAAAAC/chicken-dance.gif" class="dancing-chicken" />
+    <h1>🐔 Chicken Time Countdown! 🐔</h1>
+    <div id="countdown"></div>
 
     <script>
-        /* ------------------------------
-           Chicken Facts
-        ------------------------------ */
-        const chickenFacts = [
-            "Chickens can remember over 100 different faces!",
-            "Chickens have full-color vision like humans.",
-            "A chicken’s top speed is about 9 mph.",
-            "Chickens talk to their chicks before they hatch.",
-            "The world’s oldest chicken lived to age 16.",
-            "Roosters have built-in earplugs!"
-        ];
-        document.getElementById("fact").innerText =
-            chickenFacts[Math.floor(Math.random() * chickenFacts.length)];
+        // ==========================
+        // Countdown Timer
+        // ==========================
+        const targetDate = new Date("November 29, 2025 19:00:00 CST");
 
-        /* ------------------------------
-           Countdown Timer
-        ------------------------------ */
         function updateCountdown() {
-            const target = new Date("2025-11-29T19:00:00-06:00");
             const now = new Date();
-            const diff = target - now;
+            const diff = targetDate - now;
 
             if (diff <= 0) {
-                countdown.innerHTML = "It’s Chicken Time! 🍗🔥";
+                document.getElementById("countdown").innerHTML = "🎉 It's Chicken Time!! 🎉";
                 return;
             }
 
-            const d = Math.floor(diff / (1000 * 60 * 60 * 24));
-            const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
-            const m = Math.floor((diff / (1000 * 60)) % 60);
-            const s = Math.floor((diff / 1000) % 60);
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+            const minutes = Math.floor((diff / (1000 * 60)) % 60);
+            const seconds = Math.floor((diff / 1000) % 60);
 
-            countdown.innerHTML = `${d}d ${h}h ${m}m ${s}s`;
+            document.getElementById("countdown").innerHTML =
+                `${days}d ${hours}h ${minutes}m ${seconds}s`;
         }
+
         setInterval(updateCountdown, 1000);
         updateCountdown();
 
-        /* ------------------------------
-           Baby Chick Appears on Click
-        ------------------------------ */
+        // ==========================
+        // Spawn a baby chick on click
+        // ==========================
         document.addEventListener("click", (e) => {
             const chick = document.createElement("img");
-            chick.src = "https://pngimg.com/uploads/chick/chick_PNG1821.png";
+
+            // 100% working baby chick PNG
+            chick.src = "https://pngimg.com/uploads/chicken/chicken_PNG2167.png";
+
             chick.className = "peck-chick";
             chick.style.left = (e.clientX - 40) + "px";
             chick.style.top = (e.clientY - 40) + "px";
 
             document.body.appendChild(chick);
+
             setTimeout(() => chick.remove(), 700);
         });
-
-        /* ------------------------------
-           Happy Bears Every 5 Seconds
-        ------------------------------ */
-        function spawnBear() {
-            const bear = document.createElement("div");
-            bear.className = "bear";
-            bear.textContent = "🐻👋";
-
-            bear.style.left = Math.random() * (window.innerWidth - 100) + "px";
-            bear.style.top = Math.random() * (window.innerHeight - 100) + "px";
-
-            document.body.appendChild(bear);
-            setTimeout(() => bear.remove(), 2000);
-        }
-        setInterval(spawnBear, 5000);
     </script>
 
 </body>
