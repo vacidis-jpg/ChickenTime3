@@ -22,6 +22,18 @@
             margin-top: 20px;
         }
 
+        /* Chicken Fact Box */
+        #factBox {
+            background: #fff5ce;
+            border: 2px solid #e0b84a;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 30px auto;
+            width: 80%;
+            font-size: 1.2rem;
+            box-shadow: 0px 4px 8px rgba(0,0,0,0.1);
+        }
+
         /* Animated Chickens */
         .chicken-container {
             margin-top: 40px;
@@ -54,6 +66,20 @@
             border-radius: 10px;
             cursor: pointer;
         }
+
+        /* Big Dancing Chicken GIF */
+        #bigChicken {
+            margin-top: 40px;
+            width: 260px;
+            animation: wobble 2s ease-in-out infinite;
+        }
+
+        @keyframes wobble {
+            0% { transform: rotate(0deg); }
+            40% { transform: rotate(6deg); }
+            60% { transform: rotate(-6deg); }
+            100% { transform: rotate(0deg); }
+        }
     </style>
 </head>
 <body>
@@ -61,6 +87,12 @@
     <div id="countdown">Loading…</div>
 
     <button id="audioButton">🔊 Start Chicken Time Audio</button>
+
+    <!-- Dancing Chicken GIF -->
+    <img id="bigChicken" src="https://media.tenor.com/RrDXr6Iju50AAAAi/chicken-dance.gif" alt="Dancing Chicken">
+
+    <!-- Chicken Fact of the Day -->
+    <div id="factBox">Loading chicken fact…</div>
 
     <div class="chicken-container">
         <div class="chicken">🐔</div>
@@ -73,8 +105,35 @@
         let audioEnabled = false;
 
         const audioButton = document.getElementById("audioButton");
+        const factBox = document.getElementById("factBox");
 
-        // Start audio context on user click
+        /* -------------------------------
+           CHICKEN FACT OF THE DAY
+        --------------------------------*/
+        const chickenFacts = [
+            "Chickens can remember over 100 different faces — human and chicken.",
+            "A chicken’s vocabulary includes over 30 unique clucks and calls.",
+            "The world’s oldest chicken lived to be 16 years old.",
+            "Chickens dream while they sleep, just like humans.",
+            "Chickens are the closest living relative to the T. rex.",
+            "A hen can lay more than 300 eggs per year.",
+            "Roosters have built–in 'earmuffs' made of feathers!",
+            "Baby chicks communicate with their mother before hatching.",
+            "Chickens can see colors better than humans.",
+            "Chickens purr when they’re happy — similar to cats."
+        ];
+
+        function showDailyFact() {
+            const day = Math.floor(Date.now() / (1000 * 60 * 60 * 24));
+            const fact = chickenFacts[day % chickenFacts.length];
+            factBox.textContent = "🐣 Chicken Fact of the Day: " + fact;
+        }
+        showDailyFact();
+
+
+        /* -------------------------------
+           AUDIO STARTUP
+        --------------------------------*/
         audioButton.addEventListener("click", () => {
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             audioEnabled = true;
@@ -82,14 +141,16 @@
 
             startBackgroundLoop();
             randomClucks();
+            randomBawks();   // NEW: extra chicken bursts
         });
+
 
         /* -------------------------------
            BACKGROUND MUSIC (Synth Loop)
         --------------------------------*/
         function startBackgroundLoop() {
-            const tempo = 600; // ms between notes
-            const notes = [440, 554, 659, 554]; // A major-ish chicken melody
+            const tempo = 550;
+            const notes = [440, 554, 659, 554];
 
             let i = 0;
             function playNote() {
@@ -112,17 +173,17 @@
                 i++;
                 setTimeout(playNote, tempo);
             }
-
             playNote();
         }
 
+
         /* -------------------------------
-           RANDOM CHICKEN CLUCKS
+           RANDOM CLUCKS
         --------------------------------*/
         function randomClucks() {
             if (!audioEnabled) return;
 
-            const interval = Math.random() * 4000 + 3000; // 3–7 sec
+            const interval = Math.random() * 3500 + 2500;
 
             setTimeout(() => {
                 playCluck();
@@ -147,6 +208,39 @@
             osc.stop(audioCtx.currentTime + 0.25);
         }
 
+
+        /* -------------------------------
+           NEW: RANDOM BAWKS (extra sounds)
+        --------------------------------*/
+        function randomBawks() {
+            if (!audioEnabled) return;
+
+            const interval = Math.random() * 6000 + 4000;
+
+            setTimeout(() => {
+                playBawk();
+                randomBawks();
+            }, interval);
+        }
+
+        function playBawk() {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+
+            osc.type = "triangle";
+            osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(90, audioCtx.currentTime + 0.2);
+
+            gain.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.6, audioCtx.currentTime + 0.07);
+            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.25);
+
+            osc.connect(gain).connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.3);
+        }
+
+
         /* -------------------------------
            BIG CHICKEN TIME SQUAWK
         --------------------------------*/
@@ -166,6 +260,7 @@
             osc.start();
             osc.stop(audioCtx.currentTime + 0.5);
         }
+
 
         /* -------------------------------
            COUNTDOWN TIMER
