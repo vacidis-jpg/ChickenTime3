@@ -7,13 +7,12 @@
 
     <style>
         body {
-            background: #fdf2d0;
+            margin: 0;
+            padding: 0;
             font-family: Arial, sans-serif;
             text-align: center;
             color: #333;
-            padding: 40px;
-            position: relative;
-            z-index: 2;
+            background: #fdf2d0;
             overflow-x: hidden;
         }
 
@@ -22,338 +21,152 @@
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
+            width: 100vw;
+            height: 100vh;
             object-fit: cover;
-            z-index: -2;
-            opacity: 0.35;
+            z-index: -1;
         }
 
         h1 {
             font-size: 3rem;
-            margin-bottom: 20px;
+            margin-top: 30px;
+            text-shadow: 2px 2px 5px #fff;
         }
 
         #countdown {
             font-size: 2.5rem;
             font-weight: bold;
+            margin-top: 15px;
+            text-shadow: 2px 2px 4px #fff;
+        }
+
+        #fact {
             margin-top: 20px;
-        }
-
-        #audioButton {
-            margin-top: 35px;
-            padding: 14px 24px;
+            padding: 10px;
             font-size: 1.2rem;
-            background: #ffca57;
-            border: none;
+            background: rgba(255,255,255,0.7);
+            display: inline-block;
             border-radius: 10px;
-            cursor: pointer;
         }
 
-        /* Chick Peaking Click Effect */
-        .click-chick {
+        /* Dancing Chicken GIF */
+        .dancing-chicken {
+            margin-top: 30px;
+            width: 260px;
+        }
+
+        /* Chick Pecking on Click */
+        .peck-chick {
             position: absolute;
-            font-size: 2.8rem;
+            width: 80px;
             pointer-events: none;
-            animation: peck 1s ease-out forwards;
+            animation: peck 0.7s ease-out forwards;
         }
 
         @keyframes peck {
-            0% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
-            40% { transform: translate(-50%, -50%) scale(1.2) rotate(-20deg); }
-            70% { transform: translate(-50%, -50%) scale(1.2) rotate(15deg); }
-            100% { transform: translate(-50%, -50%) scale(0.7); opacity: 0; }
+            0% { transform: scale(0.3) translateY(0); opacity: 1; }
+            50% { transform: scale(1.1) translateY(-10px); opacity: 1; }
+            100% { transform: scale(0.3) translateY(0); opacity: 0; }
         }
 
-        /* Chicken Fact Box */
-        #factBox {
-            margin-top: 30px;
-            font-size: 1.3rem;
-            background: #fff8e6;
-            padding: 15px;
-            border-radius: 12px;
-            box-shadow: 0 0 8px rgba(0,0,0,0.15);
-            display: inline-block;
-        }
-
-        /* Animated Chickens */
-        .chicken-container {
-            margin-top: 40px;
-            display: flex;
-            justify-content: center;
-            gap: 40px;
-        }
-
-        .chicken {
-            font-size: 4.5rem;
-            display: inline-block;
-            animation: bobbing 1.6s ease-in-out infinite;
-        }
-
-        .chicken:nth-child(2) { animation-delay: 0.3s; }
-        .chicken:nth-child(3) { animation-delay: 0.6s; }
-
-        @keyframes bobbing {
-            0%   { transform: translateY(0); }
-            50%  { transform: translateY(-18px); }
-            100% { transform: translateY(0); }
-        }
-
-        /* Large dancing chicken GIF */
-        #dancing-chicken {
-            margin-top: 25px;
-            width: 220px;
-        }
-
-        /* Waving Bear Animation */
-        .waving-bear {
+        /* Happy Bears */
+        .bear {
             position: absolute;
-            font-size: 3.2rem;
-            animation: bearFade 2s ease-out forwards;
-            pointer-events: none;
-            user-select: none;
-            transform: translate(-50%, -50%);
+            font-size: 4rem;
+            animation: wave 2s ease-in-out;
         }
 
-        @keyframes bearFade {
-            0%   { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
-            20%  { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-            80%  { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-            100% { opacity: 0; transform: translate(-50%, -50%) scale(0.4); }
+        @keyframes wave {
+            0% { transform: translateY(20px) scale(0.5); opacity: 0; }
+            20% { transform: translateY(0) scale(1); opacity: 1; }
+            80% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-20px) scale(0.5); opacity: 0; }
         }
     </style>
 </head>
-
 <body>
 
     <!-- Background Video -->
-    <video autoplay muted loop playsinline id="bgVideo">
-        <source src="https://cdn.pixabay.com/vimeo/351438241/chicks-22891.mp4?width=1280" type="video/mp4">
+    <video id="bgVideo" autoplay muted loop playsinline>
+        <source src="baby_chicks.mp4" type="video/mp4" />
+        Your browser does not support background video.
     </video>
 
     <h1>🐔 Countdown to Chicken Time</h1>
     <div id="countdown">Loading…</div>
 
-    <button id="audioButton">🔊 Start Chicken Time Audio</button>
+    <div id="fact">Chicken fact of the day loading…</div>
 
-    <!-- Dancing Chicken GIF -->
-    <img id="dancing-chicken" src="https://media.tenor.com/UHJLdnOjFkUAAAAj/chicken-dance.gif">
-
-    <!-- Chicken Facts -->
-    <div id="factBox">Chicken Fact of the Day: Loading…</div>
-
-    <div class="chicken-container">
-        <div class="chicken">🐔</div>
-        <div class="chicken">🍗</div>
-        <div class="chicken">🐔</div>
-    </div>
+    <img src="dancing_chicken.gif" class="dancing-chicken" />
 
     <script>
-        let audioCtx;
-        let audioEnabled = false;
+        /* ------------------------------
+           Chicken Facts
+        ------------------------------ */
+        const chickenFacts = [
+            "Chickens can remember over 100 different faces!",
+            "Chickens have full-color vision like humans.",
+            "A chicken’s top speed is about 9 mph.",
+            "Chickens talk to their chicks before they hatch.",
+            "The world’s oldest chicken lived to age 16.",
+            "Roosters have built-in earplugs!"
+        ];
+        document.getElementById("fact").innerText =
+            chickenFacts[Math.floor(Math.random() * chickenFacts.length)];
 
-        const audioButton = document.getElementById("audioButton");
-
-        /* -------------------------------------------
-           AUDIO FEATURES
-        ------------------------------------------- */
-        audioButton.addEventListener("click", () => {
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            audioEnabled = true;
-            audioButton.style.display = "none";
-
-            startBackgroundLoop();
-            randomClucks();
-            extraChickenSounds();
-        });
-
-        // Extra random chicken noises
-        function extraChickenSounds() {
-            if (!audioEnabled) return;
-            const interval = Math.random() * 5000 + 4000;
-
-            setTimeout(() => {
-                playExtraCluck();
-                extraChickenSounds();
-            }, interval);
-        }
-
-        function playExtraCluck() {
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-
-            osc.type = "triangle";
-            osc.frequency.setValueAtTime(500, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(250, audioCtx.currentTime + 0.15);
-
-            gain.gain.setValueAtTime(0.0001, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.5, audioCtx.currentTime + 0.05);
-            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.3);
-
-            osc.connect(gain).connect(audioCtx.destination);
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.3);
-        }
-
-        /* Background music loop */
-        function startBackgroundLoop() {
-            const tempo = 600;
-            const notes = [440, 554, 659, 554];
-
-            let i = 0;
-            function playNote() {
-                if (!audioEnabled) return;
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-
-                osc.frequency.value = notes[i % notes.length];
-                osc.type = "sine";
-
-                gain.gain.setValueAtTime(0.0001, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.12, audioCtx.currentTime + 0.05);
-                gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.3);
-
-                osc.connect(gain).connect(audioCtx.destination);
-                osc.start();
-                osc.stop(audioCtx.currentTime + 0.31);
-
-                i++;
-                setTimeout(playNote, tempo);
-            }
-
-            playNote();
-        }
-
-        // Random clucks
-        function randomClucks() {
-            if (!audioEnabled) return;
-
-            const interval = Math.random() * 4000 + 3000;
-            setTimeout(() => {
-                playCluck();
-                randomClucks();
-            }, interval);
-        }
-
-        function playCluck() {
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-
-            osc.type = "square";
-            osc.frequency.setValueAtTime(700, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(200, audioCtx.currentTime + 0.15);
-
-            gain.gain.setValueAtTime(0.0001, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.4, audioCtx.currentTime + 0.05);
-            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.2);
-
-            osc.connect(gain).connect(audioCtx.destination);
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.25);
-        }
-
-        function chickenTimeSquawk() {
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-
-            osc.type = "sawtooth";
-            osc.frequency.setValueAtTime(300, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(900, audioCtx.currentTime + 0.4);
-
-            gain.gain.setValueAtTime(0.0001, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(1.0, audioCtx.currentTime + 0.1);
-            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.45);
-
-            osc.connect(gain).connect(audioCtx.destination);
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.5);
-        }
-
-        /* -------------------------------------------
-           COUNTDOWN TIMER
-        ------------------------------------------- */
+        /* ------------------------------
+           Countdown Timer
+        ------------------------------ */
         function updateCountdown() {
-            const targetDate = new Date("2025-11-29T19:00:00-06:00");
+            const target = new Date("2025-11-29T19:00:00-06:00");
             const now = new Date();
-            const diff = targetDate - now;
+            const diff = target - now;
 
             if (diff <= 0) {
-                document.getElementById("countdown").innerHTML = "It’s Chicken Time! 🍗🔥";
-                if (audioEnabled) chickenTimeSquawk();
+                countdown.innerHTML = "It’s Chicken Time! 🍗🔥";
                 return;
             }
 
-            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-            const minutes = Math.floor((diff / (1000 * 60)) % 60);
-            const seconds = Math.floor((diff / 1000) % 60);
+            const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
+            const m = Math.floor((diff / (1000 * 60)) % 60);
+            const s = Math.floor((diff / 1000) % 60);
 
-            document.getElementById("countdown").innerHTML =
-                `${days}d ${hours}h ${minutes}m ${seconds}s`;
+            countdown.innerHTML = `${d}d ${h}h ${m}m ${s}s`;
         }
-
-        updateCountdown();
         setInterval(updateCountdown, 1000);
+        updateCountdown();
 
-        /* -------------------------------------------
-           CHICKEN FACT OF THE DAY
-        ------------------------------------------- */
-        const facts = [
-            "Chickens can remember over 100 different faces — human OR chicken!",
-            "The oldest chicken lived to be 16 years old.",
-            "Chickens can run up to 9 mph.",
-            "Chickens actually dream when they sleep.",
-            "A chicken’s heart beats about 300 times per minute!",
-            "Chickens communicate with over 30 unique clucks."
-        ];
-
-        document.getElementById("factBox").innerText =
-            "Chicken Fact of the Day: " + facts[Math.floor(Math.random() * facts.length)];
-
-        /* -------------------------------------------
-           CLICK TO SPAWN PECKING CHICKS
-        ------------------------------------------- */
-        document.addEventListener("click", (event) => {
-            const chick = document.createElement("div");
-            chick.className = "click-chick";
-            chick.textContent = "🐤";
-
-            chick.style.left = event.pageX + "px";
-            chick.style.top = event.pageY + "px";
+        /* ------------------------------
+           Chicks Appearing on Click
+        ------------------------------ */
+        document.addEventListener("click", (e) => {
+            const chick = document.createElement("img");
+            chick.src = "peck_chick.png";
+            chick.className = "peck-chick";
+            chick.style.left = e.clientX - 40 + "px";
+            chick.style.top = e.clientY - 40 + "px";
 
             document.body.appendChild(chick);
-
-            setTimeout(() => {
-                chick.remove();
-            }, 1000);
+            setTimeout(() => chick.remove(), 700);
         });
 
-        /* -------------------------------------------
-           WAVING BEAR EVERY 5 SECONDS
-        ------------------------------------------- */
+        /* ------------------------------
+           Happy Bears Every 5 Seconds
+        ------------------------------ */
         function spawnBear() {
             const bear = document.createElement("div");
-            bear.className = "waving-bear";
-            bear.textContent = "ʕ•ᴥ•ʔﾉ♡";
+            bear.className = "bear";
+            bear.textContent = "🐻👋";
 
-            // random position
-            const x = Math.random() * window.innerWidth;
-            const y = Math.random() * window.innerHeight * 0.8;
-
-            bear.style.left = x + "px";
-            bear.style.top = y + "px";
+            bear.style.left = Math.random() * (window.innerWidth - 100) + "px";
+            bear.style.top = Math.random() * (window.innerHeight - 100) + "px";
 
             document.body.appendChild(bear);
-
-            // remove after 2 seconds
-            setTimeout(() => {
-                bear.remove();
-            }, 2000);
+            setTimeout(() => bear.remove(), 2000);
         }
-
-        // spawn a bear every 5 seconds
         setInterval(spawnBear, 5000);
-
     </script>
+
 </body>
 </html>
