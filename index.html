@@ -145,6 +145,17 @@
 </div>
 
 <script>
+  // Enable audio playback after first user click (browser requirement)
+let audioUnlocked = false;
+
+document.addEventListener("click", () => {
+  if (!audioUnlocked) {
+    const player = document.getElementById("musicPlayer");
+    player.play().catch(()=>{});
+    audioUnlocked = true;
+  }
+});
+  
   /* -------------------------
    Dynamic Music Based on Time Remaining
 ------------------------- */
