@@ -121,7 +121,6 @@
       100% { opacity: 0; transform: translate(-50%,-50%) scale(1); }
     }
 
-    /* Music controls UI */
     #musicControls {
       position: fixed;
       bottom: 18px;
@@ -171,25 +170,21 @@
 <body>
   <div class="overlay"></div>
 
-  <!-- Hidden (system) audio element — controlled via UI below -->
   <audio id="musicPlayer" autoplay loop style="display:none;"></audio>
 
   <div class="content">
     <h1>🐔 Countdown to Chicken Time</h1>
-
     <div id="countdown">Loading…</div>
 
-    <!-- fact above the GIF -->
     <div id="fact">Loading chicken fact…</div>
 
-    <!-- Chicken GIF placed under the countdown (as requested) -->
+    <!-- GIF element (will be switched every 10s) -->
     <img id="chickenGif"
          class="chicken-gif"
          src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExZHY4dDlub24yd3RpZndvc2pmdGtmcHVseDJ6cHo4bXNhN21yOHIzOCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/bJ91q0UsnGbacudx2g/giphy.gif"
          alt="Dancing chicken">
   </div>
 
-  <!-- Music control UI -->
   <div id="musicControls" aria-live="polite">
     <button id="muteBtn" aria-pressed="false">🔊 Mute</button>
     <label for="volumeSlider" class="sr-only">Volume</label>
@@ -197,6 +192,23 @@
   </div>
 
 <script>
+/* -------------------------
+   Cycle GIFs every 10 seconds
+------------------------- */
+const gifEl = document.getElementById("chickenGif");
+
+const gifList = [
+  "https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExZHY4dDlub24yd3RpZndvc2pmdGtmcHVseDJ6cHo4bXNhN21yOHIzOCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/bJ91q0UsnGbacudx2g/giphy.gif",
+  "https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExaDIyZ2hnOXliZXNzeGxvYmhpdzM2dnhkeWRjaWhiYTYyZzQ4dTlyeSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/AgVa4rSV8cTBpdLYjs/giphy.gif"
+];
+
+let gifIndex = 0;
+
+setInterval(() => {
+  gifIndex = (gifIndex + 1) % gifList.length;
+  gifEl.src = gifList[gifIndex];
+}, 10000);
+
 /* -------------------------
    Chicken facts
 ------------------------- */
@@ -232,10 +244,9 @@ setInterval(updateFact, 7000);
    Countdown + Dynamic Music
 ------------------------- */
 
-// Target time: Nov 29, 2025 19:00:00 America/Chicago (-06:00)
 const TARGET_ISO = "2025-11-29T19:00:00-06:00";
 
-// MP3 tracks (public domain / reliably accessible)
+// LOCAL MP3 FILES — EXACT FILENAMES PROVIDED
 const MUSIC_TRACKS = {
   intense: "Classicals.de%20-%20Beethoven%20-%20The%20Tempest%20-%201.%20Movement%20-%20Piano%20Sonata%20No.%2017%20in%20D%20Minor%2C%20Op.%2031%2C%20No.%202.mp3",
   medium:  "Classicals.de%20-%20Beethoven%20-%20The%20Tempest%20-%201.%20Movement%20-%20Sonata%20No.%2017%2C%20Op.%2031%2C%20No.%202%20-%20Arranged%20for%20Strings.mp3",
@@ -245,30 +256,22 @@ const MUSIC_TRACKS = {
 const musicPlayer = document.getElementById("musicPlayer");
 let currentTrack = null;
 
-// UI controls
 const muteBtn = document.getElementById("muteBtn");
 const volumeSlider = document.getElementById("volumeSlider");
 
-// initialize volume and mute state from slider
 musicPlayer.volume = parseFloat(volumeSlider.value || "1");
 musicPlayer.muted = false;
 
-// Autoplay restrictions: unlock audio on first user interaction
 let audioUnlocked = false;
 function unlockAudioOnce() {
   if (audioUnlocked) return;
   audioUnlocked = true;
-  // Attempt to play the current source if set (may fail silently otherwise)
-  musicPlayer.play().catch(err => {
-    // Browsers often throw, but once user interacts playback should work
-    console.log("Audio play attempt after unlock:", err && err.message ? err.message : err);
-  });
+  musicPlayer.play().catch(()=>{});
 }
 document.addEventListener("click", unlockAudioOnce, { once: true });
 document.addEventListener("keydown", unlockAudioOnce, { once: true });
 document.addEventListener("touchstart", unlockAudioOnce, { once: true });
 
-// choose track based on time remaining (hours)
 function chooseTrackByRemaining(diffMs) {
   const hours = diffMs / 3600000;
   if (hours > 48) return MUSIC_TRACKS.intense;
@@ -280,22 +283,14 @@ function updateMusic(diffMs) {
   const chosen = chooseTrackByRemaining(diffMs);
   if (chosen !== currentTrack) {
     currentTrack = chosen;
-    // preserve current volume and muted settings, just swap src
-    const wasMuted = musicPlayer.muted;
     const prevVolume = musicPlayer.volume;
+    const wasMuted = musicPlayer.muted;
 
     musicPlayer.src = chosen;
-    // reapply volume and mute
     musicPlayer.volume = prevVolume;
     musicPlayer.muted = wasMuted;
 
-    // attempt to play only if the user has unlocked audio
-    if (audioUnlocked) {
-      musicPlayer.play().catch(e => {
-        // don't spam console on expected autoplay rejections
-        console.log("Play after track change rejected (expected if no unlock):", e && e.message ? e.message : e);
-      });
-    }
+    if (audioUnlocked) musicPlayer.play().catch(()=>{});
   }
 }
 
@@ -310,18 +305,15 @@ function updateCountdown() {
 
   if (diff <= 0) {
     countdownEl.textContent = "🎉 It's Chicken Time!! 🎉";
-    // fade out music when event fires
-    try {
-      let vol = musicPlayer.volume;
-      const fade = setInterval(() => {
-        vol = Math.max(0, vol - 0.02);
-        musicPlayer.volume = vol;
-        if (vol <= 0.01) {
-          musicPlayer.pause();
-          clearInterval(fade);
-        }
-      }, 150);
-    } catch (e) {}
+    let vol = musicPlayer.volume;
+    const fade = setInterval(() => {
+      vol = Math.max(0, vol - 0.02);
+      musicPlayer.volume = vol;
+      if (vol <= 0.01) {
+        musicPlayer.pause();
+        clearInterval(fade);
+      }
+    }, 150);
     return;
   }
 
@@ -330,20 +322,19 @@ function updateCountdown() {
   const minutes = Math.floor((diff / 60000) % 60);
   const seconds = Math.floor((diff / 1000) % 60);
 
-  countdownEl.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+  countdownEl.textContent =
+    `${days}d ${hours}h ${minutes}m ${seconds}s`;
 }
 
-// start countdown and music selection loop
 updateCountdown();
 setInterval(updateCountdown, 1000);
 
 /* -------------------------
-   Click => Spawn chick (click-chick)
+   Click => Spawn chick
 ------------------------- */
 const CLICK_CHICK_URL = "CLICK_CHICK_URL_HERE";
 
 document.addEventListener("click", (ev) => {
-  // leave original unlock handler in place — this is purely visual spawn
   if (!ev.clientX && !ev.clientY) return;
 
   const img = new Image();
@@ -353,7 +344,6 @@ document.addEventListener("click", (ev) => {
   img.src = CLICK_CHICK_URL;
 
   img.onerror = () => {
-    // if image fails, show emoji fallback
     img.remove();
     const fallback = document.createElement("div");
     fallback.className = "click-chick";
@@ -372,38 +362,7 @@ document.addEventListener("click", (ev) => {
 });
 
 /* -------------------------
-   Resilient chicken GIF (tries alternates then emoji)
-------------------------- */
-(function makeGifResilient() {
-  const img = document.getElementById("chickenGif");
-  if (!img) return;
-
-  const alternates = [
-    "https://media.giphy.com/media/26ufdipQqU2lhNA4g/giphy.gif",
-    "https://media.tenor.com/images/9b2f3f2a0f4d5c7b6c1a2dcb8b1c9e00/tenor.gif"
-  ];
-
-  img.dataset.tryIndex = "0";
-
-  function onErr() {
-    let idx = parseInt(img.dataset.tryIndex || "0", 10);
-    if (idx < alternates.length) {
-      img.dataset.tryIndex = String(idx + 1);
-      img.src = alternates[idx];
-    } else {
-      const emoji = document.createElement("div");
-      emoji.className = "gif-fallback-emoji";
-      emoji.textContent = "🐔";
-      img.replaceWith(emoji);
-      img.removeEventListener("error", onErr);
-    }
-  }
-
-  img.addEventListener("error", onErr);
-})();
-
-/* -------------------------
-   Static bear + waving paw
+   Bear spawns
 ------------------------- */
 function spawnBear() {
   const bear = document.createElement("div");
@@ -414,11 +373,8 @@ function spawnBear() {
     <div class="bear-paw">👋</div>
   `;
 
-  const vw = window.innerWidth;
-  const vh = window.innerHeight;
-
-  bear.style.left = (Math.random() * (vw * 0.8) + vw * 0.1) + "px";
-  bear.style.top  = (Math.random() * (vh * 0.8) + vh * 0.1) + "px";
+  bear.style.left = (Math.random() * window.innerWidth) + "px";
+  bear.style.top  = (Math.random() * window.innerHeight) + "px";
 
   document.body.appendChild(bear);
   setTimeout(() => bear.remove(), 2000);
@@ -426,7 +382,7 @@ function spawnBear() {
 
 setTimeout(() => {
   spawnBear();
-  window._bearInterval = setInterval(spawnBear, 5000);
+  window._bearInterval = setInterval(spawnBear, 5005);
 }, 1200);
 
 window.addEventListener("beforeunload", () => {
@@ -434,7 +390,7 @@ window.addEventListener("beforeunload", () => {
 });
 
 /* -------------------------
-   Music Controls: mute & volume slider
+   Music Controls
 ------------------------- */
 muteBtn.addEventListener("click", () => {
   musicPlayer.muted = !musicPlayer.muted;
@@ -442,11 +398,9 @@ muteBtn.addEventListener("click", () => {
   muteBtn.setAttribute("aria-pressed", String(musicPlayer.muted));
 });
 
-// volume slider
 volumeSlider.addEventListener("input", (e) => {
   const v = parseFloat(e.target.value);
   musicPlayer.volume = v;
-  // if user moves volume to 0, visually show as muted (but don't set true 'muted' flag)
   if (v <= 0.001) {
     muteBtn.textContent = "🔈 Unmute";
     muteBtn.setAttribute("aria-pressed", "true");
@@ -458,27 +412,24 @@ volumeSlider.addEventListener("input", (e) => {
   }
 });
 
-// ensure slider reflects player volume if changed programmatically
 musicPlayer.addEventListener("volumechange", () => {
   const vol = Math.round((musicPlayer.volume ?? 1) * 100) / 100;
   if (parseFloat(volumeSlider.value) !== vol) {
     volumeSlider.value = String(vol);
   }
 
-  // keep muteBtn text consistent when true muted flag toggled
   muteBtn.textContent = musicPlayer.muted ? "🔈 Unmute" : "🔊 Mute";
   muteBtn.setAttribute("aria-pressed", String(musicPlayer.muted));
 });
 
 /* -------------------------
-   Initialize current track immediately (so src exists)
+   Initialize track
 ------------------------- */
 (function initTrackOnLoad() {
   const target = new Date(TARGET_ISO);
   const diff = target - new Date();
   currentTrack = chooseTrackByRemaining(diff);
   musicPlayer.src = currentTrack;
-  // if user already interacted (rare), try to play
   if (audioUnlocked) musicPlayer.play().catch(()=>{});
 })();
 </script>
