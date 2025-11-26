@@ -57,8 +57,17 @@
 
     .chicken-gif {
       width: 240px;
-      margin-top: 20px;
+      margin-top: 18px;
       filter: drop-shadow(0 6px 12px rgba(0,0,0,0.6));
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .gif-fallback-emoji {
+      display: inline-block;
+      font-size: 3rem;
+      margin-top: 18px;
     }
 
     .bear-container {
@@ -109,6 +118,11 @@
       60% { opacity: 1; transform: translate(-50%,-50%) scale(1.1); }
       100% { opacity: 0; transform: translate(-50%,-50%) scale(1); }
     }
+
+    @media (max-width: 420px) {
+      .chicken-gif { width: 160px; }
+      .click-chick { width: 64px; }
+    }
   </style>
 </head>
 
@@ -120,18 +134,20 @@
 
   <div id="countdown">Loading…</div>
 
+  <!-- fact above the GIF -->
   <div id="fact">Loading chicken fact…</div>
 
-  <!-- GIF moved directly below the countdown -->
-  <img class="chicken-gif"
-       src="https://media.tenor.com/7vTfp14RJC4AAAAi/chicken-dance.gif"
+  <!-- resilient dancing chicken GIF: tries primary then fallbacks, then emoji -->
+  <img id="chickenGif"
+       class="chicken-gif"
+       src="https://media.giphy.com/media/3o6Zt6ML6BklcajjsA/giphy.gif"
        alt="Dancing chicken">
-  
+  <!-- note: that src is the primary — script will try alternates if it fails -->
 </div>
 
 <script>
 /* -------------------------
-   Chicken facts (tripled list + cycling)
+   Chicken facts (unchanged)
 ------------------------- */
 const facts = [
   "Chickens can remember over 100 individual faces!",
@@ -189,7 +205,7 @@ updateCountdown();
 setInterval(updateCountdown, 1000);
 
 /* -------------------------
-   Click => Spawn chick
+   Click => Spawn chick (unchanged, placeholder)
 ------------------------- */
 const CLICK_CHICK_URL = "CLICK_CHICK_URL_HERE";
 
@@ -217,6 +233,48 @@ document.addEventListener("click", (ev) => {
     setTimeout(() => img.remove(), 1000);
   };
 });
+
+/* -------------------------
+   Resilient chicken GIF logic
+   - primary src is already set in HTML
+   - script will attempt alternates if image fails
+------------------------- */
+(function makeGifResilient() {
+  const img = document.getElementById("chickenGif");
+  if (!img) return;
+
+  // list of alternate GIF URLs to try in order (hosts chosen for diversity)
+  const alternates = [
+    // primary is already the element src; these are tried on failure
+    "https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif",
+    "https://media.tenor.com/images/7f1a6c8b9b2f4a8f3f1c2ad0c5a4a8e6/tenor.gif",
+    // final site-based candidate (often available on gif DB style sites)
+    "https://gifdb.com/images/high/animated-little-tiny-chicken-dance-t3burmspy1xm319y.gif"
+  ];
+
+  // attempt count stored as data attribute
+  img.dataset.tryIndex = "0";
+
+  img.addEventListener("error", function onErr() {
+    let idx = parseInt(img.dataset.tryIndex || "0", 10);
+
+    if (idx < alternates.length) {
+      // try next alternate URL
+      img.dataset.tryIndex = String(idx + 1);
+      img.src = alternates[idx];
+      // next error will trigger again
+    } else {
+      // all GIF attempts failed — replace with an emoji fallback element
+      const emoji = document.createElement("div");
+      emoji.className = "gif-fallback-emoji";
+      emoji.textContent = "🐔";
+      img.replaceWith(emoji);
+      img.removeEventListener("error", onErr);
+    }
+  });
+
+  // if the image loads successfully, nothing else happens
+})();
 
 /* -------------------------
    Static bear + waving paw
